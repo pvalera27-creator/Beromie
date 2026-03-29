@@ -1,0 +1,1702 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Beromie — Habitaciones verificadas en Murcia</title>
+<meta name="description" content="Habitaciones para estudiantes en Murcia verificadas y gestionadas al 100%. Reserva tu habitación cerca de la UMU o UCAM con Beromie. Sin sorpresas, sin estrés.">
+<meta name="keywords" content="habitaciones murcia, alquiler habitaciones murcia, habitaciones estudiantes murcia, UMU, UCAM, beromie">
+<meta property="og:title" content="Beromie — Habitaciones verificadas en Murcia">
+<meta property="og:description" content="Habitaciones para estudiantes en Murcia gestionadas al 100%. Reserva online en minutos.">
+<meta property="og:url" content="https://beromie.vercel.app">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --pink: #F0135E; --pink-vivid: #FF1A6A;
+  --pink-pale: #FFF0F5; --pink-mid: #FFD6E7; --pink-dark: #C00A4C;
+  --black: #0C0C0B; --gray-700: #3D3D3C; --gray-500: #6B6B69;
+  --gray-400: #8C8C8A; --gray-300: #ACACAA;
+  --gray-100: #F2F2F0; --gray-50: #F8F8F6; --white: #FFFFFF;
+  --green: #1A7A4A; --green-pale: #EDFAF4;
+  --border: rgba(12,12,11,0.08); --border-md: rgba(12,12,11,0.14);
+  --r: 14px; --r-sm: 8px; --r-lg: 20px;
+  --shadow-sm: 0 1px 6px rgba(12,12,11,0.06);
+  --shadow: 0 4px 24px rgba(12,12,11,0.08);
+  --shadow-lg: 0 12px 48px rgba(12,12,11,0.14);
+  --t: 0.18s cubic-bezier(.4,0,.2,1);
+}
+body { font-family: 'Outfit', sans-serif; background: var(--white); color: var(--black); font-size: 15px; line-height: 1.6; -webkit-font-smoothing: antialiased; }
+
+/* ── TOPBAR ── */
+.topbar { position: fixed; top: 0; left: 0; right: 0; z-index: 300; height: 60px; background: var(--white); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 28px; }
+.logo { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 800; letter-spacing: -0.5px; cursor: pointer; }
+.logo em { color: var(--pink); font-style: normal; }
+.topbar-nav { display: flex; gap: 2px; }
+@media(max-width:700px){.topbar-nav{display:none}}
+.tnav { padding: 7px 14px; border-radius: 8px; font-size: 13px; font-weight: 500; color: var(--gray-500); cursor: pointer; border: none; background: none; font-family: 'Outfit', sans-serif; transition: var(--t); }
+.tnav:hover { background: var(--gray-100); color: var(--black); }
+.tnav.on { background: var(--gray-100); color: var(--black); }
+.topbar-right { display: flex; align-items: center; gap: 8px; }
+.bell { width: 36px; height: 36px; border-radius: 9px; background: var(--gray-50); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 15px; position: relative; transition: var(--t); }
+.bell:hover { background: var(--gray-100); }
+.bell-dot { position: absolute; top: 6px; right: 6px; width: 7px; height: 7px; border-radius: 50%; background: var(--pink); border: 2px solid var(--white); display: none; }
+.btn-login { padding: 7px 16px; border-radius: 99px; font-size: 13px; font-weight: 500; background: none; color: var(--gray-700); border: 1px solid var(--border-md); cursor: pointer; font-family: 'Outfit', sans-serif; transition: var(--t); }
+.btn-login:hover { border-color: var(--pink); color: var(--pink); }
+.pill { padding: 8px 18px; border-radius: 99px; font-size: 13px; font-weight: 600; background: var(--pink); color: var(--white); border: none; cursor: pointer; font-family: 'Outfit', sans-serif; transition: var(--t); }
+.pill:hover { background: var(--pink-vivid); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(240,19,94,0.3); }
+
+/* ── USER AVATAR (cuando logueado) ── */
+.user-avatar { width: 34px; height: 34px; border-radius: 50%; background: var(--pink-mid); color: var(--pink-dark); font-size: 13px; font-weight: 700; display: none; align-items: center; justify-content: center; cursor: pointer; border: 2px solid var(--white); box-shadow: var(--shadow-sm); }
+.user-menu { position: absolute; top: 52px; right: 28px; background: var(--white); border: 1px solid var(--border-md); border-radius: var(--r); box-shadow: var(--shadow-lg); padding: 6px; min-width: 180px; display: none; z-index: 400; }
+.user-menu.open { display: block; }
+.user-menu-item { display: flex; align-items: center; gap: 10px; padding: 10px 13px; border-radius: var(--r-sm); font-size: 13px; font-weight: 500; cursor: pointer; transition: background var(--t); border: none; background: none; width: 100%; font-family: 'Outfit', sans-serif; color: var(--black); text-align: left; }
+.user-menu-item:hover { background: var(--gray-50); }
+.user-menu-item.danger { color: var(--pink); }
+.user-menu-divider { height: 1px; background: var(--border); margin: 4px 0; }
+
+/* ── SCREENS ── */
+.screen { display: none; padding-top: 60px; min-height: 100vh; }
+.screen.active { display: block; }
+
+/* ── LOADING STATE ── */
+.loading-overlay { position: fixed; inset: 0; z-index: 999; background: var(--white); display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 16px; }
+.loading-logo { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800; }
+.loading-logo em { color: var(--pink); font-style: normal; }
+.spinner { width: 32px; height: 32px; border: 3px solid var(--pink-mid); border-top-color: var(--pink); border-radius: 50%; animation: spin 0.7s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-overlay.hidden { display: none; }
+
+/* ── HERO ── */
+.hero { padding: 72px 40px 60px; display: grid; grid-template-columns: 1fr 1fr; gap: 56px; align-items: center; max-width: 1100px; margin: 0 auto; }
+@media(max-width:760px){ .hero { grid-template-columns: 1fr; padding: 44px 20px 36px; gap: 32px; } }
+.hero-tag { display: inline-flex; align-items: center; gap: 7px; background: var(--pink-pale); border: 1px solid var(--pink-mid); padding: 5px 13px; border-radius: 99px; margin-bottom: 22px; }
+.hero-tag-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--pink); animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.5} }
+.hero-tag span { font-size: 12px; font-weight: 600; color: var(--pink); }
+.hero h1 { font-family: 'Syne', sans-serif; font-size: clamp(38px,4.5vw,60px); font-weight: 800; line-height: 1.0; letter-spacing: -2px; color: var(--black); margin-bottom: 18px; }
+.hero h1 .hl { color: var(--pink); }
+.hero-sub { font-size: 16px; color: var(--gray-500); line-height: 1.7; margin-bottom: 32px; max-width: 400px; }
+.hero-actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 40px; }
+.btn-primary { padding: 13px 26px; border-radius: 99px; background: var(--pink); color: var(--white); font-size: 15px; font-weight: 600; cursor: pointer; border: none; font-family: 'Outfit', sans-serif; transition: var(--t); box-shadow: 0 4px 20px rgba(240,19,94,0.22); }
+.btn-primary:hover { background: var(--pink-vivid); transform: translateY(-2px); }
+.btn-ghost { padding: 13px 26px; border-radius: 99px; background: none; color: var(--gray-700); font-size: 15px; font-weight: 500; cursor: pointer; border: 1px solid var(--border-md); font-family: 'Outfit', sans-serif; transition: var(--t); }
+.btn-ghost:hover { border-color: var(--pink); color: var(--pink); }
+.hero-stats { display: flex; gap: 28px; padding-top: 28px; border-top: 1px solid var(--border); flex-wrap: wrap; }
+.hstat-n { font-family: 'Syne', sans-serif; font-size: 25px; font-weight: 700; line-height: 1; }
+.hstat-n em { color: var(--pink); font-style: normal; }
+.hstat-l { font-size: 12px; color: var(--gray-400); margin-top: 3px; }
+
+/* Search card */
+.search-card { background: var(--white); border: 1px solid var(--border-md); border-radius: var(--r-lg); padding: 26px; box-shadow: var(--shadow-lg); }
+.search-card-ttl { font-family: 'Syne', sans-serif; font-size: 17px; font-weight: 700; margin-bottom: 18px; }
+.sgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 11px; }
+.sf { display: flex; flex-direction: column; gap: 5px; }
+.sf label { font-size: 11px; font-weight: 700; color: var(--gray-400); text-transform: uppercase; letter-spacing: 0.6px; }
+.sf input, .sf select { border: 1px solid var(--border-md); border-radius: var(--r-sm); padding: 10px 13px; font-size: 14px; font-weight: 500; background: var(--gray-50); color: var(--black); outline: none; font-family: 'Outfit', sans-serif; transition: border-color var(--t); }
+.sf input:focus, .sf select:focus { border-color: var(--pink); background: var(--white); }
+.search-btn { width: 100%; margin-top: 14px; padding: 13px; border-radius: 99px; background: var(--black); color: var(--white); font-size: 14px; font-weight: 600; cursor: pointer; border: none; font-family: 'Outfit', sans-serif; transition: var(--t); }
+.search-btn:hover { background: var(--pink); box-shadow: 0 4px 20px rgba(240,19,94,0.25); }
+
+/* Filter + Results */
+.filter-bar { display: flex; align-items: center; gap: 8px; padding: 13px 40px; border-bottom: 1px solid var(--border); overflow-x: auto; scrollbar-width: none; }
+.filter-bar::-webkit-scrollbar { display: none; }
+@media(max-width:600px){ .filter-bar { padding: 12px 20px; } }
+.flbl { font-size: 11px; font-weight: 700; color: var(--gray-300); text-transform: uppercase; letter-spacing: 0.6px; white-space: nowrap; margin-right: 4px; }
+.fp { padding: 6px 15px; border-radius: 99px; font-size: 13px; font-weight: 500; border: 1px solid var(--border-md); background: none; cursor: pointer; font-family: 'Outfit', sans-serif; transition: var(--t); color: var(--gray-700); white-space: nowrap; }
+.fp:hover { border-color: var(--pink); color: var(--pink); }
+.fp.on { background: var(--black); color: var(--white); border-color: var(--black); }
+.results-sec { max-width: 1100px; margin: 0 auto; padding: 28px 40px 60px; }
+@media(max-width:600px){ .results-sec { padding: 18px 20px 40px; } }
+.results-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.results-count { font-size: 14px; color: var(--gray-500); }
+.results-count strong { color: var(--black); font-weight: 600; }
+.sort-sel { border: 1px solid var(--border-md); border-radius: var(--r-sm); padding: 7px 12px; font-size: 13px; background: none; outline: none; font-family: 'Outfit', sans-serif; color: var(--black); cursor: pointer; }
+.cards-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(300px,1fr)); gap: 18px; }
+
+/* Room card */
+.rcard { border-radius: var(--r-lg); border: 1px solid var(--border); overflow: hidden; cursor: pointer; transition: var(--t); background: var(--white); }
+.rcard:hover { box-shadow: var(--shadow-lg); transform: translateY(-3px); border-color: transparent; }
+.rthumb { aspect-ratio: 16/10; display: flex; align-items: center; justify-content: center; font-size: 52px; position: relative; background: #F5EEE6; }
+.rchip { position: absolute; top: 12px; left: 12px; padding: 4px 10px; border-radius: 99px; font-size: 11px; font-weight: 700; letter-spacing: 0.2px; text-transform: uppercase; }
+.chip-v { background: var(--black); color: var(--white); }
+.chip-n { background: var(--pink); color: var(--white); }
+.chip-o { background: rgba(12,12,11,0.35); color: var(--white); }
+.rcbody { padding: 16px 18px 18px; }
+.rczone { font-size: 11px; font-weight: 700; color: var(--pink); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 5px; }
+.rcname { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700; line-height: 1.25; margin-bottom: 10px; }
+.rcpills { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+.rcpill { font-size: 12px; padding: 3px 9px; border-radius: 99px; background: var(--gray-50); color: var(--gray-700); border: 1px solid var(--border); }
+.rcfoot { display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid var(--border); }
+.rcprice { font-family: 'Syne', sans-serif; font-size: 21px; font-weight: 700; }
+.rcprice span { font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 400; color: var(--gray-400); }
+.atag { font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 99px; }
+.at-free { background: #EDFAF4; color: #1A7A4A; }
+.at-soon { background: #FFF8E6; color: #8A6200; }
+.at-full { background: var(--gray-100); color: var(--gray-500); }
+
+/* Empty state */
+.empty-state { text-align: center; padding: 60px 20px; color: var(--gray-400); }
+.empty-state-icon { font-size: 40px; margin-bottom: 12px; }
+.empty-state-title { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 700; color: var(--gray-500); margin-bottom: 6px; }
+
+/* ── DETAIL ── */
+.detail-wrap { max-width: 1100px; margin: 0 auto; padding: 30px 40px 80px; }
+@media(max-width:700px){ .detail-wrap { padding: 18px 20px 60px; } }
+.back-btn { display: inline-flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 500; color: var(--gray-500); cursor: pointer; border: none; background: none; font-family: 'Outfit', sans-serif; margin-bottom: 22px; transition: color var(--t); }
+.back-btn:hover { color: var(--black); }
+.dlayout { display: grid; grid-template-columns: 1fr 360px; gap: 34px; }
+@media(max-width:860px){ .dlayout { grid-template-columns: 1fr; } }
+.gallery { border-radius: var(--r-lg); overflow: hidden; aspect-ratio: 16/10; background: #F0E9E0; display: flex; align-items: center; justify-content: center; font-size: 80px; margin-bottom: 24px; }
+.dzone { font-size: 11px; font-weight: 700; color: var(--pink); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 8px; }
+.dtitle { font-family: 'Syne', sans-serif; font-size: clamp(22px,3vw,34px); font-weight: 800; letter-spacing: -0.8px; line-height: 1.1; margin-bottom: 16px; }
+.dfeats { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 24px; }
+.dfeat { display: flex; align-items: center; gap: 7px; font-size: 13px; color: var(--gray-700); background: var(--gray-50); border: 1px solid var(--border); padding: 7px 13px; border-radius: 99px; }
+.sec-h { font-family: 'Syne', sans-serif; font-size: 17px; font-weight: 700; margin-bottom: 12px; margin-top: 24px; }
+.ddesc { font-size: 15px; color: var(--gray-500); line-height: 1.75; }
+.amen-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.amen { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--gray-700); padding: 10px 13px; background: var(--gray-50); border: 1px solid var(--border); border-radius: var(--r-sm); }
+.std-banner { margin-top: 22px; padding: 15px 17px; border-radius: var(--r); border: 1.5px solid var(--pink-mid); background: var(--pink-pale); display: flex; align-items: flex-start; gap: 11px; }
+.std-icon { font-size: 20px; flex-shrink: 0; }
+.std-text strong { font-size: 14px; font-weight: 600; color: var(--pink-dark); display: block; margin-bottom: 2px; }
+.std-text p { font-size: 13px; color: var(--pink-dark); opacity: 0.75; line-height: 1.5; }
+
+/* Book widget */
+.book-widget { background: var(--white); border: 1px solid var(--border-md); border-radius: var(--r-lg); padding: 24px; box-shadow: var(--shadow-lg); position: sticky; top: 78px; }
+.book-price { font-family: 'Syne', sans-serif; font-size: 36px; font-weight: 800; color: var(--black); line-height: 1; letter-spacing: -1px; }
+.book-price span { font-family: 'Outfit', sans-serif; font-size: 15px; font-weight: 400; color: var(--gray-400); }
+.book-avail { display: inline-flex; align-items: center; gap: 6px; margin: 9px 0 18px; font-size: 13px; font-weight: 600; color: var(--green); }
+.book-avail::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: var(--green); }
+.vn { display: flex; align-items: flex-start; gap: 9px; background: #FFF8E6; border: 1px solid #FFE59A; padding: 10px 12px; border-radius: var(--r-sm); font-size: 13px; color: #7A5800; margin-bottom: 14px; line-height: 1.4; }
+.bf { display: flex; flex-direction: column; gap: 5px; margin-bottom: 11px; }
+.bf label { font-size: 11px; font-weight: 700; color: var(--gray-400); text-transform: uppercase; letter-spacing: 0.5px; }
+.bf input, .bf select { border: 1px solid var(--border-md); border-radius: var(--r-sm); padding: 10px 12px; font-size: 14px; background: var(--gray-50); color: var(--black); outline: none; font-family: 'Outfit', sans-serif; transition: border-color var(--t); }
+.bf input:focus, .bf select:focus { border-color: var(--pink); }
+.bdown { background: var(--gray-50); border-radius: var(--r-sm); padding: 13px; margin: 12px 0; }
+.brow { display: flex; justify-content: space-between; font-size: 13px; color: var(--gray-500); padding: 3px 0; }
+.brow.tot { border-top: 1px solid var(--border); margin-top: 6px; padding-top: 9px; font-size: 14px; font-weight: 700; color: var(--black); }
+.book-cta { width: 100%; padding: 13px; border-radius: 99px; background: var(--pink); color: var(--white); font-size: 15px; font-weight: 700; cursor: pointer; border: none; font-family: 'Outfit', sans-serif; transition: var(--t); box-shadow: 0 4px 16px rgba(240,19,94,0.25); }
+.book-cta:hover { background: var(--pink-vivid); transform: translateY(-1px); }
+.book-cta:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+.book-note { font-size: 12px; color: var(--gray-300); text-align: center; margin-top: 9px; }
+
+/* ── DASHBOARDS ── */
+.dash { max-width: 1100px; margin: 0 auto; padding: 34px 40px 80px; }
+@media(max-width:700px){ .dash { padding: 18px 20px 60px; } }
+.dash-head { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 26px; flex-wrap: wrap; gap: 12px; }
+.dash-greet { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800; letter-spacing: -0.8px; }
+.dash-greet em { color: var(--pink); font-style: normal; }
+.dash-sub { font-size: 14px; color: var(--gray-500); margin-top: 4px; }
+.tabs-bar { display: flex; gap: 2px; background: var(--gray-50); padding: 4px; border-radius: 10px; width: fit-content; margin-bottom: 24px; border: 1px solid var(--border); }
+.dtab { padding: 8px 17px; border-radius: 7px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; background: none; font-family: 'Outfit', sans-serif; color: var(--gray-500); transition: var(--t); white-space: nowrap; }
+.dtab.on { background: var(--white); color: var(--black); box-shadow: var(--shadow-sm); }
+.bsm { display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px; border-radius: 50%; background: var(--pink); color: var(--white); font-size: 10px; font-weight: 700; margin-left: 5px; }
+.tc { display: none; }
+.tc.on { display: block; }
+.room-bar { border-radius: var(--r-lg); background: var(--black); color: var(--white); display: grid; grid-template-columns: 140px 1fr; overflow: hidden; margin-bottom: 20px; }
+.room-bar-thumb { background: #1E1E1C; display: flex; align-items: center; justify-content: center; font-size: 40px; min-height: 90px; }
+.room-bar-info { padding: 18px 22px; }
+.room-bar-lbl { font-size: 11px; color: rgba(255,255,255,0.35); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 5px; font-weight: 700; }
+.room-bar-name { font-family: 'Syne', sans-serif; font-size: 17px; font-weight: 700; margin-bottom: 11px; }
+.room-bar-chips { display: flex; gap: 7px; flex-wrap: wrap; }
+.rbc { font-size: 12px; padding: 4px 10px; border-radius: 99px; background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.7); }
+.rbc.hl { background: var(--pink); }
+.metrics { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 12px; margin-bottom: 22px; }
+@media(max-width:600px){ .metrics { grid-template-columns: 1fr; } }
+.met { background: var(--white); border: 1px solid var(--border); border-radius: var(--r); padding: 17px 19px; }
+.met-lbl { font-size: 12px; color: var(--gray-500); margin-bottom: 7px; }
+.met-val { font-family: 'Syne', sans-serif; font-size: 26px; font-weight: 700; color: var(--black); line-height: 1; }
+.met-sub { font-size: 12px; color: var(--gray-400); margin-top: 5px; }
+.met.good .met-val { color: var(--green); }
+.met.warn .met-val { color: var(--pink); }
+.tbl-wrap { background: var(--white); border: 1px solid var(--border); border-radius: var(--r-lg); overflow: hidden; margin-bottom: 18px; overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 480px; }
+th { background: var(--gray-50); padding: 11px 16px; text-align: left; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--gray-400); border-bottom: 1px solid var(--border); }
+td { padding: 12px 16px; border-top: 1px solid var(--border); }
+tr:hover td { background: var(--gray-50); }
+.spill { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 99px; font-size: 12px; font-weight: 600; }
+.sp-ok{background:#EDFAF4;color:#1A7A4A}.sp-pend{background:#FFF8E6;color:#8A6200}.sp-late{background:var(--pink-pale);color:var(--pink-dark)}
+.sec-hdr { display: flex; justify-content: space-between; align-items: center; margin-bottom: 13px; }
+.sec-title { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 700; }
+.tlink { font-size: 13px; color: var(--pink); font-weight: 600; cursor: pointer; border: none; background: none; font-family: 'Outfit', sans-serif; }
+.tlink:hover { text-decoration: underline; }
+.dlnk { font-size: 12px; color: var(--pink); cursor: pointer; background: none; border: none; font-family: 'Outfit', sans-serif; font-weight: 600; }
+
+/* Incidents */
+.inc-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 12px; }
+.inc { border: 1px solid var(--border); border-radius: var(--r); padding: 14px 17px; display: flex; align-items: center; gap: 13px; background: var(--white); }
+.inc-ico { font-size: 20px; flex-shrink: 0; }
+.inc-info { flex: 1; }
+.inc-title-txt { font-size: 14px; font-weight: 600; margin-bottom: 2px; }
+.inc-date { font-size: 12px; color: var(--gray-400); }
+.inc-add { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 12px; border: 1.5px dashed var(--border-md); border-radius: var(--r); background: none; font-size: 14px; font-weight: 600; color: var(--gray-400); cursor: pointer; font-family: 'Outfit', sans-serif; transition: var(--t); }
+.inc-add:hover { border-color: var(--pink); color: var(--pink); background: var(--pink-pale); }
+
+/* Chat */
+.chat-wrap { display: grid; grid-template-columns: 220px 1fr; gap: 14px; }
+@media(max-width:640px){ .chat-wrap { grid-template-columns: 1fr; } }
+.chat-side { border: 1px solid var(--border); border-radius: var(--r-lg); overflow: hidden; background: var(--white); }
+.chat-side-hdr { padding: 13px 15px; font-size: 11px; font-weight: 700; border-bottom: 1px solid var(--border); text-transform: uppercase; letter-spacing: 0.5px; color: var(--gray-400); }
+.ccontact { display: flex; align-items: center; gap: 11px; padding: 12px 15px; border-bottom: 1px solid var(--border); cursor: pointer; transition: background var(--t); }
+.ccontact:hover { background: var(--gray-50); }
+.ccontact.on { background: var(--pink-pale); }
+.av { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; flex-shrink: 0; }
+.av-pink{background:var(--pink-mid);color:var(--pink-dark)}.av-dark{background:var(--black);color:var(--white)}
+.ci { flex: 1; min-width: 0; }
+.ci-name { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
+.ci-prev { font-size: 12px; color: var(--gray-400); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.unread { width: 7px; height: 7px; border-radius: 50%; background: var(--pink); }
+.chat-main { border: 1px solid var(--border); border-radius: var(--r-lg); background: var(--white); display: flex; flex-direction: column; }
+.chat-hdr { padding: 13px 17px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 11px; }
+.chat-online { width: 7px; height: 7px; border-radius: 50%; background: var(--green); }
+.chat-hdr-name { font-size: 14px; font-weight: 700; }
+.chat-hdr-role { font-size: 12px; color: var(--gray-400); display: flex; align-items: center; gap: 5px; }
+.chat-msgs { flex: 1; padding: 16px; display: flex; flex-direction: column; gap: 11px; overflow-y: auto; min-height: 200px; max-height: 320px; }
+.msg { max-width: 75%; display: flex; flex-direction: column; }
+.msg.in { align-self: flex-start; }
+.msg.out { align-self: flex-end; }
+.mbubble { padding: 10px 14px; border-radius: 16px; font-size: 14px; line-height: 1.55; }
+.msg.in .mbubble { background: var(--gray-50); border: 1px solid var(--border); color: var(--black); border-bottom-left-radius: 4px; }
+.msg.out .mbubble { background: var(--pink); color: var(--white); border-bottom-right-radius: 4px; }
+.mtime { font-size: 11px; color: var(--gray-300); margin-top: 3px; }
+.msg.out .mtime { text-align: right; }
+.chat-input-bar { padding: 12px 13px; border-top: 1px solid var(--border); display: flex; gap: 9px; }
+.chat-tf { flex: 1; border: 1px solid var(--border-md); border-radius: 99px; padding: 9px 15px; font-size: 14px; background: var(--gray-50); font-family: 'Outfit', sans-serif; color: var(--black); outline: none; transition: border-color var(--t); }
+.chat-tf:focus { border-color: var(--pink); }
+.chat-send { padding: 9px 18px; background: var(--pink); color: var(--white); border: none; border-radius: 99px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'Outfit', sans-serif; transition: var(--t); }
+.chat-send:hover { background: var(--pink-vivid); }
+
+/* Owner extras */
+.ow4 { grid-template-columns: repeat(4,minmax(0,1fr)) !important; }
+@media(max-width:700px){ .ow4 { grid-template-columns: repeat(2,minmax(0,1fr)) !important; } }
+.chart-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--r-lg); padding: 20px; margin-bottom: 20px; }
+.chart-card-ttl { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700; margin-bottom: 16px; }
+.bar-chart { display: flex; align-items: flex-end; gap: 10px; height: 105px; }
+.bg { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 5px; }
+.b { width: 100%; border-radius: 5px 5px 0 0; background: var(--gray-100); transition: background var(--t); cursor: pointer; }
+.b:hover { background: var(--pink-mid); }
+.b.cur { background: var(--pink); }
+.bl { font-size: 11px; color: var(--gray-400); }
+.occ-bar { height: 5px; background: var(--gray-100); border-radius: 3px; overflow: hidden; width: 70px; display: inline-block; vertical-align: middle; }
+.occ-fill { height: 100%; background: var(--green); border-radius: 3px; }
+
+/* Modal login */
+.modal-overlay { position: fixed; inset: 0; z-index: 500; background: rgba(12,12,11,0.5); display: none; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(4px); }
+.modal-overlay.open { display: flex; }
+.modal { background: var(--white); border-radius: var(--r-lg); padding: 36px; width: 100%; max-width: 420px; box-shadow: var(--shadow-lg); position: relative; }
+.modal-close { position: absolute; top: 18px; right: 18px; width: 32px; height: 32px; border-radius: 8px; background: var(--gray-100); border: none; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; }
+.modal-logo { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 800; margin-bottom: 5px; }
+.modal-logo em { color: var(--pink); font-style: normal; }
+.modal-sub { font-size: 14px; color: var(--gray-500); margin-bottom: 22px; }
+.modal-tabs { display: flex; background: var(--gray-50); border-radius: var(--r-sm); padding: 4px; margin-bottom: 22px; border: 1px solid var(--border); gap: 2px; }
+.modal-tab { flex: 1; padding: 8px; border-radius: 6px; font-size: 14px; font-weight: 500; cursor: pointer; border: none; background: none; font-family: 'Outfit', sans-serif; color: var(--gray-500); transition: var(--t); }
+.modal-tab.on { background: var(--white); color: var(--black); box-shadow: var(--shadow-sm); }
+.mfield { display: flex; flex-direction: column; gap: 5px; margin-bottom: 12px; }
+.mfield label { font-size: 11px; font-weight: 700; color: var(--gray-400); text-transform: uppercase; letter-spacing: 0.5px; }
+.mfield input { border: 1px solid var(--border-md); border-radius: var(--r-sm); padding: 11px 13px; font-size: 14px; background: var(--gray-50); color: var(--black); outline: none; font-family: 'Outfit', sans-serif; width: 100%; transition: border-color var(--t); }
+.mfield input:focus { border-color: var(--pink); background: var(--white); }
+.mfield select { border: 1px solid var(--border-md); border-radius: var(--r-sm); padding: 11px 13px; font-size: 14px; background: var(--gray-50); color: var(--black); outline: none; font-family: 'Outfit', sans-serif; width: 100%; }
+.modal-cta { width: 100%; padding: 13px; border-radius: 99px; background: var(--pink); color: var(--white); font-size: 15px; font-weight: 700; cursor: pointer; border: none; font-family: 'Outfit', sans-serif; transition: var(--t); box-shadow: 0 4px 16px rgba(240,19,94,0.25); }
+.modal-cta:hover { background: var(--pink-vivid); }
+.modal-cta:disabled { opacity: 0.6; cursor: not-allowed; }
+.modal-error { background: var(--pink-pale); border: 1px solid var(--pink-mid); color: var(--pink-dark); padding: 10px 13px; border-radius: var(--r-sm); font-size: 13px; margin-bottom: 12px; display: none; }
+.modal-divider { display: flex; align-items: center; gap: 12px; margin: 16px 0; }
+.modal-divider-line { flex: 1; height: 1px; background: var(--border); }
+.modal-divider span { font-size: 12px; color: var(--gray-300); }
+.modal-google { width: 100%; padding: 11px; border-radius: 99px; background: none; color: var(--gray-700); font-size: 14px; font-weight: 500; cursor: pointer; border: 1px solid var(--border-md); font-family: 'Outfit', sans-serif; transition: var(--t); }
+.modal-google:hover { border-color: var(--gray-300); }
+.modal-terms { font-size: 12px; color: var(--gray-300); text-align: center; margin-top: 14px; line-height: 1.5; }
+.modal-terms a { color: var(--pink); cursor: pointer; }
+
+/* Incident modal */
+.inc-modal { background: var(--white); border-radius: var(--r-lg); padding: 32px; width: 100%; max-width: 480px; box-shadow: var(--shadow-lg); position: relative; }
+.inc-modal-title { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 700; margin-bottom: 20px; }
+
+/* Cookie banner */
+.cookie-banner { position: fixed; bottom: 20px; left: 20px; right: 20px; z-index: 400; background: var(--black); color: var(--white); border-radius: var(--r-lg); padding: 18px 22px; display: flex; align-items: center; justify-content: space-between; gap: 16px; box-shadow: var(--shadow-lg); flex-wrap: wrap; }
+.cookie-text { font-size: 13px; color: rgba(255,255,255,0.7); flex: 1; min-width: 200px; }
+.cookie-actions { display: flex; gap: 8px; }
+.cookie-btn { padding: 8px 16px; border-radius: 99px; font-size: 13px; font-weight: 500; border: none; cursor: pointer; font-family: 'Outfit', sans-serif; }
+.cookie-reject { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.7); }
+.cookie-accept { background: var(--pink); color: var(--white); font-weight: 600; }
+
+/* Toast */
+.toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px); z-index: 999; background: var(--black); color: var(--white); padding: 12px 22px; border-radius: 99px; font-size: 14px; font-weight: 500; opacity: 0; pointer-events: none; transition: all 0.3s cubic-bezier(.4,0,.2,1); white-space: nowrap; box-shadow: var(--shadow-lg); }
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<!-- ══════ LOADING ══════ -->
+<div class="loading-overlay" id="loading" style="transition:opacity 0.3s">
+  <div class="loading-logo">Be<em>romie</em></div>
+  <div class="spinner"></div>
+</div>
+
+<!-- ══════ TOPBAR ══════ -->
+<header class="topbar">
+  <div class="logo" onclick="go('landing')">Be<em>romie</em></div>
+  <nav class="topbar-nav">
+    <button class="tnav on" id="nb-landing" onclick="go('landing')">Buscar</button>
+    <button class="tnav" id="nb-tenant" onclick="requireAuth('tenant')">Mi habitación</button>
+    <button class="tnav" id="nb-owner" onclick="requireAuth('owner')">Mi panel</button>
+    <button class="tnav" id="nb-admin" onclick="requireAdmin()" style="display:none">⚙️ Admin</button>
+  </nav>
+  <div class="topbar-right" style="position:relative">
+    <div class="bell" id="bellBtn">🔔<div class="bell-dot" id="bellDot"></div></div>
+    <button class="btn-login" id="btnLogin" onclick="openModal()">Entrar</button>
+    <button class="pill" id="btnReservar" onclick="go('landing')">Ver habitaciones →</button>
+    <div class="user-avatar" id="userAvatar" onclick="toggleUserMenu()"></div>
+    <div class="user-menu" id="userMenu">
+      <div class="user-menu-item" id="menuDashboard">📊 Mi panel</div>
+      <div class="user-menu-item" onclick="go('profile')">👤 Mi perfil</div>
+      <div class="user-menu-divider"></div>
+      <div class="user-menu-item danger" onclick="signOut()">🚪 Cerrar sesión</div>
+    </div>
+  </div>
+</header>
+
+<!-- ══════ SCREEN: LANDING ══════ -->
+<div class="screen active" id="screen-landing">
+  <section class="hero">
+    <div>
+      <div class="hero-tag"><div class="hero-tag-dot"></div><span>Murcia · Habitaciones verificadas</span></div>
+      <h1>Tu primera<br><span class="hl">habitación</span><br>en Murcia</h1>
+      <p class="hero-sub">Habitaciones con el estándar Beromie. Gestionadas al 100%. Sin sorpresas, sin estrés.</p>
+      <div class="hero-actions">
+        <button class="btn-primary" onclick="scrollToRooms()">Buscar habitación →</button>
+        <button class="btn-ghost" onclick="openModal()">Crear cuenta gratis</button>
+      </div>
+      <div class="hero-stats">
+        <div><div class="hstat-n" id="stat-rooms"><em>—</em></div><div class="hstat-l">Habitaciones activas</div></div>
+        <div><div class="hstat-n">100<em>%</em></div><div class="hstat-l">Verificadas</div></div>
+        <div><div class="hstat-n">4.9<em>★</em></div><div class="hstat-l">Valoración media</div></div>
+      </div>
+    </div>
+    <div class="search-card">
+      <div class="search-card-ttl">Encuentra tu habitación</div>
+      <div class="sgrid">
+        <div class="sf"><label>Zona</label>
+          <select id="filterZone">
+            <option value="">Toda Murcia</option>
+            <option>La Flota</option>
+            <option>El Carmen</option>
+            <option>Espinardo</option>
+            <option>Centro</option>
+            <option>Vistabella</option>
+          </select>
+        </div>
+        <div class="sf"><label>Entrada</label><input type="month" id="filterMonth" value="2025-09"></div>
+        <div class="sf"><label>Precio máximo</label>
+          <select id="filterPrice">
+            <option value="">Sin límite</option>
+            <option value="300">Hasta 300 €</option>
+            <option value="350">Hasta 350 €</option>
+            <option value="400">Hasta 400 €</option>
+          </select>
+        </div>
+        <div class="sf"><label>Duración</label>
+          <select id="filterDuration">
+            <option value="9">Curso completo</option>
+            <option value="6">6 meses</option>
+            <option value="4">4 meses</option>
+            <option value="3">3 meses</option>
+          </select>
+        </div>
+      </div>
+      <button class="search-btn" onclick="loadRooms()">Buscar habitaciones →</button>
+    </div>
+  </section>
+
+  <div class="filter-bar" id="filterBar">
+    <span class="flbl">Filtrar</span>
+    <button class="fp on" onclick="setFilter(this,'')" data-filter="">Todas</button>
+    <button class="fp" onclick="setFilter(this,'available')" data-filter="available">Disponible ahora</button>
+    <button class="fp" onclick="setFilter(this,'private')" data-filter="private">Baño propio</button>
+    <button class="fp" onclick="setFilter(this,'cheap')" data-filter="cheap">Menos de 350 €</button>
+    <button class="fp" onclick="setFilter(this,'umu')" data-filter="umu">Cerca UMU</button>
+  </div>
+
+  <div class="results-sec" id="results-sec">
+    <div class="results-top">
+      <div class="results-count" id="results-count">Cargando habitaciones...</div>
+      <select class="sort-sel" id="sortSel" onchange="sortRooms()">
+        <option value="newest">Más recientes</option>
+        <option value="price_asc">Precio ↑</option>
+        <option value="price_desc">Precio ↓</option>
+      </select>
+    </div>
+    <div class="cards-grid" id="roomsGrid">
+      <div class="empty-state" style="grid-column:1/-1">
+        <div class="spinner" style="margin:0 auto"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ SCREEN: DETAIL ══════ -->
+<div class="screen" id="screen-detail">
+  <div class="detail-wrap">
+    <button class="back-btn" onclick="go('landing')">← Volver</button>
+    <div class="dlayout" id="detailContent">
+      <div class="empty-state"><div class="spinner" style="margin:0 auto"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ SCREEN: TENANT DASHBOARD ══════ -->
+<div class="screen" id="screen-tenant">
+  <div class="dash">
+    <div class="dash-head">
+      <div>
+        <div class="dash-greet">Hola, <em id="tenantName">...</em> 👋</div>
+        <div class="dash-sub" id="tenantSub">Cargando tu habitación...</div>
+      </div>
+    </div>
+    <div class="room-bar" id="tenantRoomBar">
+      <div class="room-bar-thumb">🛏</div>
+      <div class="room-bar-info"><div class="room-bar-lbl">Tu habitación</div><div class="room-bar-name" id="tenantRoomName">Cargando...</div><div class="room-bar-chips" id="tenantRoomChips"></div></div>
+    </div>
+    <div class="metrics">
+      <div class="met good"><div class="met-lbl">Estado del pago</div><div class="met-val">Al día</div><div class="met-sub">Pago automatizado</div></div>
+      <div class="met"><div class="met-lbl">Renta mensual</div><div class="met-val" id="tenantRent">— €</div><div class="met-sub" id="tenantRentSub"></div></div>
+      <div class="met warn"><div class="met-lbl">Incidencias</div><div class="met-val" id="tenantIncCount">—</div><div class="met-sub" id="tenantIncSub"></div></div>
+    </div>
+    <div class="tabs-bar">
+      <button class="dtab on" onclick="setTab('pagos',this)">Facturas</button>
+      <button class="dtab" onclick="setTab('incidencias',this)">Incidencias</button>
+      <button class="dtab" onclick="setTab('chat',this)">Mensajes<span class="bsm" id="unreadBadge">0</span></button>
+    </div>
+    <div class="tc on" id="tc-pagos">
+      <div class="sec-hdr"><div class="sec-title">Historial de pagos</div></div>
+      <div class="tbl-wrap"><table><thead><tr><th>Mes</th><th>Concepto</th><th>Importe</th><th>Estado</th></tr></thead><tbody id="paymentsBody"><tr><td colspan="4" style="text-align:center;color:var(--gray-400);padding:24px">Cargando...</td></tr></tbody></table></div>
+    </div>
+    <div class="tc" id="tc-incidencias">
+      <div class="sec-hdr"><div class="sec-title">Mis incidencias</div></div>
+      <div class="inc-list" id="incidentsList"></div>
+      <button class="inc-add" onclick="openIncidentModal()">+ Reportar nueva incidencia</button>
+    </div>
+    <div class="tc" id="tc-chat">
+      <div class="chat-wrap">
+        <div class="chat-side">
+          <div class="chat-side-hdr">Mensajes</div>
+          <div class="ccontact on"><div class="av av-pink">B</div><div class="ci"><div class="ci-name">Beromie · Soporte</div><div class="ci-prev" id="lastMsgPreview">Escríbenos lo que necesites</div></div></div>
+        </div>
+        <div class="chat-main">
+          <div class="chat-hdr"><div class="av av-pink" style="width:34px;height:34px;font-size:12px">B</div><div><div class="chat-hdr-name">Beromie · Soporte</div><div class="chat-hdr-role"><div class="chat-online"></div> En línea</div></div></div>
+          <div class="chat-msgs" id="chatMsgs"></div>
+          <div class="chat-input-bar"><input class="chat-tf" id="chatInput" type="text" placeholder="Escribe un mensaje..." onkeydown="if(event.key==='Enter')sendMessage()"><button class="chat-send" onclick="sendMessage()">Enviar</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ SCREEN: OWNER DASHBOARD ══════ -->
+<div class="screen" id="screen-owner">
+  <div class="dash">
+    <div class="dash-head">
+      <div><div class="dash-greet">Panel <em>propietario</em></div><div class="dash-sub" id="ownerSub">Cargando datos...</div></div>
+    </div>
+    <div class="metrics ow4">
+      <div class="met"><div class="met-lbl">Ingresos este mes</div><div class="met-val" id="ownerIncome">—</div><div class="met-sub" style="color:var(--green)">Renta bruta</div></div>
+      <div class="met good"><div class="met-lbl">Ocupación</div><div class="met-val" id="ownerOccupancy">—</div><div class="met-sub" id="ownerOccSub"></div></div>
+      <div class="met"><div class="met-lbl">Comisión Beromie</div><div class="met-val" id="ownerCommission">—</div><div class="met-sub">17% de la renta</div></div>
+      <div class="met"><div class="met-lbl">Neto estimado</div><div class="met-val" id="ownerNet">—</div><div class="met-sub">Este mes</div></div>
+    </div>
+    <div class="sec-hdr"><div class="sec-title">Habitaciones gestionadas</div></div>
+    <div class="tbl-wrap" style="margin-bottom:24px">
+      <table><thead><tr><th>Habitación</th><th>Zona</th><th>Renta</th><th>Estado</th></tr></thead>
+      <tbody id="ownerRoomsBody"><tr><td colspan="4" style="text-align:center;padding:24px;color:var(--gray-400)">Cargando...</td></tr></tbody></table>
+    </div>
+    <div class="sec-hdr"><div class="sec-title">Reservas activas</div></div>
+    <div class="tbl-wrap">
+      <table><thead><tr><th>Habitación</th><th>Inquilino</th><th>Inicio</th><th>Duración</th><th>Estado</th></tr></thead>
+      <tbody id="ownerBookingsBody"><tr><td colspan="5" style="text-align:center;padding:24px;color:var(--gray-400)">Cargando...</td></tr></tbody></table>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ SCREEN: PROFILE ══════ -->
+<div class="screen" id="screen-profile">
+  <div class="dash">
+    <div class="dash-head"><div><div class="dash-greet">Mi <em>perfil</em></div><div class="dash-sub">Gestiona tus datos personales</div></div></div>
+    <div style="max-width:480px;background:var(--white);border:1px solid var(--border-md);border-radius:var(--r-lg);padding:28px">
+      <div class="mfield"><label>Nombre completo</label><input type="text" id="profileName" placeholder="Tu nombre completo"></div>
+      <div class="mfield"><label>Teléfono</label><input type="text" id="profilePhone" placeholder="Ej: 612 345 678"></div>
+      <div class="mfield"><label>DNI / NIE</label><input type="text" id="profileDni" placeholder="Ej: 12345678A"></div>
+      <div class="mfield"><label>Rol</label>
+        <select id="profileRole">
+          <option value="tenant">Inquilino — busco habitación</option>
+          <option value="owner">Propietario — tengo habitaciones</option>
+        </select>
+      </div>
+      <button class="btn-primary" style="margin-top:8px" onclick="saveProfile()">Guardar cambios</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════ SCREEN: ADMIN ══════ -->
+<div class="screen" id="screen-admin">
+  <div class="dash">
+    <div class="dash-head">
+      <div>
+        <div class="dash-greet">Panel <em>administración</em></div>
+        <div class="dash-sub">Gestión completa de Beromie · Acceso restringido</div>
+      </div>
+      <span class="admin-badge">⚙️ Admin</span>
+    </div>
+
+    <!-- Métricas globales -->
+    <div class="metrics" id="adminMetrics" style="grid-template-columns:repeat(4,minmax(0,1fr))">
+      <div class="met stat-highlight"><div class="met-lbl">Reservas pendientes</div><div class="met-val" id="am-pending">—</div></div>
+      <div class="met"><div class="met-lbl">Habitaciones activas</div><div class="met-val" id="am-rooms">—</div></div>
+      <div class="met"><div class="met-lbl">Inquilinos registrados</div><div class="met-val" id="am-tenants">—</div></div>
+      <div class="met"><div class="met-lbl">Incidencias abiertas</div><div class="met-val" id="am-incidents">—</div></div>
+    </div>
+
+    <div class="admin-tabs">
+      <button class="atab on" onclick="setAdminTab('reservas',this)">Reservas</button>
+      <button class="atab" onclick="setAdminTab('habitaciones',this)">Habitaciones</button>
+      <button class="atab" onclick="setAdminTab('nueva-hab',this)">+ Nueva habitación</button>
+      <button class="atab" onclick="setAdminTab('usuarios',this)">Usuarios</button>
+      <button class="atab" onclick="setAdminTab('incidencias-admin',this)">Incidencias</button>
+    </div>
+
+    <!-- TAB: RESERVAS -->
+    <div class="atc on" id="atc-reservas">
+      <div class="sec-hdr"><div class="sec-title">Todas las reservas</div><button class="tlink" onclick="loadAdminDashboard()">↺ Actualizar</button></div>
+      <div class="tbl-wrap">
+        <table><thead><tr><th>Fecha</th><th>Habitación</th><th>Inquilino</th><th>Duración</th><th>Estado</th><th>Acciones</th></tr></thead>
+        <tbody id="adminBookingsBody"><tr><td colspan="6" style="text-align:center;padding:24px;color:var(--gray-400)">Cargando...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TAB: HABITACIONES -->
+    <div class="atc" id="atc-habitaciones">
+      <div class="sec-hdr"><div class="sec-title">Habitaciones</div><button class="tlink" onclick="setAdminTab('nueva-hab',document.querySelector('.atab:nth-child(3)'))">+ Añadir nueva</button></div>
+      <div class="tbl-wrap">
+        <table><thead><tr><th>Título</th><th>Zona</th><th>Precio</th><th>Estado</th><th>Verificada</th><th>Acciones</th></tr></thead>
+        <tbody id="adminRoomsBody"><tr><td colspan="6" style="text-align:center;padding:24px;color:var(--gray-400)">Cargando...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TAB: NUEVA HABITACIÓN -->
+    <div class="atc" id="atc-nueva-hab">
+      <div class="sec-title" style="margin-bottom:20px">Añadir habitación</div>
+      <div class="room-form">
+        <div class="form-grid-2" style="margin-bottom:12px">
+          <div class="form-row"><label>Título</label><input type="text" id="nh-title" placeholder="Ej: Habitación luminosa con escritorio"></div>
+          <div class="form-row"><label>Zona</label>
+            <select id="nh-zone"><option>La Flota</option><option>El Carmen</option><option>Espinardo</option><option>Centro</option><option>Vistabella</option></select>
+          </div>
+          <div class="form-row"><label>Dirección</label><input type="text" id="nh-address" placeholder="Calle, número, piso"></div>
+          <div class="form-row"><label>Precio (€/mes)</label><input type="number" id="nh-price" placeholder="320"></div>
+          <div class="form-row"><label>Superficie (m²)</label><input type="number" id="nh-size" placeholder="14"></div>
+          <div class="form-row"><label>Baño</label>
+            <select id="nh-bath"><option value="shared">Compartido</option><option value="private">Propio</option></select>
+          </div>
+          <div class="form-row"><label>Wifi (Mb)</label><input type="number" id="nh-wifi" placeholder="100" value="100"></div>
+          <div class="form-row"><label>Estado inicial</label>
+            <select id="nh-status"><option value="available">Disponible</option><option value="reserved">Reservada</option><option value="occupied">Ocupada</option></select>
+          </div>
+        </div>
+        <div class="form-row" style="margin-bottom:12px"><label>Descripción</label><textarea id="nh-desc" rows="3" placeholder="Describe la habitación..."></textarea></div>
+        <div class="form-row" style="margin-bottom:16px"><label>Amenities (separadas por coma)</label><input type="text" id="nh-amenities" placeholder="Cama 105cm, Escritorio, Armario, Wifi, A/C"></div>
+        <div style="display:flex;gap:12px;align-items:center">
+          <label style="display:flex;align-items:center;gap:8px;font-size:14px;cursor:pointer">
+            <input type="checkbox" id="nh-verified"> Verificada (Estándar Beromie)
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;font-size:14px;cursor:pointer">
+            <input type="checkbox" id="nh-umu"> Cerca UMU
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;font-size:14px;cursor:pointer">
+            <input type="checkbox" id="nh-ucam"> Cerca UCAM
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;font-size:14px;cursor:pointer">
+            <input type="checkbox" id="nh-ac"> A/C incluido
+          </label>
+        </div>
+        <button class="btn-primary" style="margin-top:20px;width:100%" onclick="createRoom()">Guardar habitación</button>
+      </div>
+    </div>
+
+    <!-- TAB: USUARIOS -->
+    <div class="atc" id="atc-usuarios">
+      <div class="sec-hdr"><div class="sec-title">Usuarios registrados</div></div>
+      <div class="tbl-wrap">
+        <table><thead><tr><th>Nombre</th><th>Email</th><th>Rol</th><th>Reservas</th><th>Acciones</th></tr></thead>
+        <tbody id="adminUsersBody"><tr><td colspan="5" style="text-align:center;padding:24px;color:var(--gray-400)">Cargando...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TAB: INCIDENCIAS -->
+    <div class="atc" id="atc-incidencias-admin">
+      <div class="sec-hdr"><div class="sec-title">Incidencias</div></div>
+      <div class="tbl-wrap">
+        <table><thead><tr><th>Fecha</th><th>Título</th><th>Inquilino</th><th>Habitación</th><th>Estado</th><th>Acción</th></tr></thead>
+        <tbody id="adminIncidentsBody"><tr><td colspan="6" style="text-align:center;padding:24px;color:var(--gray-400)">Cargando...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ MODAL: LOGIN/REGISTER ══════ -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModalOutside(event)">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div class="modal-logo">Be<em>romie</em></div>
+    <div class="modal-sub" id="modalSub">Accede a tu cuenta</div>
+    <div class="modal-tabs">
+      <button class="modal-tab on" id="mtab-login" onclick="setModalTab('login')">Entrar</button>
+      <button class="modal-tab" id="mtab-register" onclick="setModalTab('register')">Crear cuenta</button>
+    </div>
+    <div class="modal-error" id="modalError"></div>
+    <div id="modalLoginForm">
+      <div class="mfield"><label>Email</label><input type="email" id="loginEmail" placeholder="correo@ejemplo.com"></div>
+      <div class="mfield"><label>Contraseña</label><input type="password" id="loginPassword" placeholder="Tu contraseña"></div>
+      <button class="modal-cta" id="btnLoginSubmit" onclick="signIn()">Entrar en Beromie</button>
+    </div>
+    <div id="modalRegisterForm" style="display:none">
+      <div class="mfield"><label>Nombre completo</label><input type="text" id="regName" placeholder="Tu nombre"></div>
+      <div class="mfield"><label>Email</label><input type="email" id="regEmail" placeholder="correo@ejemplo.com"></div>
+      <div class="mfield"><label>Contraseña</label><input type="password" id="regPassword" placeholder="Mínimo 8 caracteres"></div>
+      <div class="mfield"><label>Soy...</label>
+        <select id="regRole">
+          <option value="tenant">Inquilino — busco habitación</option>
+          <option value="owner">Propietario — tengo habitaciones</option>
+        </select>
+      </div>
+      <button class="modal-cta" id="btnRegisterSubmit" onclick="signUp()">Crear mi cuenta</button>
+    </div>
+    <div class="modal-divider"><div class="modal-divider-line"></div><span>o</span><div class="modal-divider-line"></div></div>
+    <button class="modal-google" onclick="signInGoogle()">🔵 Continuar con Google</button>
+    <div class="modal-terms">Al continuar aceptas los <a>Términos</a> y la <a>Política de privacidad</a> de Beromie.</div>
+  </div>
+</div>
+
+<!-- ══════ MODAL: NUEVA INCIDENCIA ══════ -->
+<div class="modal-overlay" id="incModalOverlay" onclick="closeIncModal(event)">
+  <div class="inc-modal">
+    <button class="modal-close" onclick="closeIncModal()">✕</button>
+    <div class="inc-modal-title">Reportar incidencia</div>
+    <div class="mfield"><label>Título</label><input type="text" id="incTitle" placeholder="Ej: Grifo con goteo en el baño"></div>
+    <div class="mfield"><label>Descripción</label><textarea id="incDesc" style="border:1px solid var(--border-md);border-radius:var(--r-sm);padding:10px 13px;font-size:14px;font-family:'Outfit',sans-serif;width:100%;min-height:90px;background:var(--gray-50);outline:none;resize:vertical" placeholder="Describe la incidencia con el mayor detalle posible..."></textarea></div>
+    <button class="modal-cta" onclick="submitIncident()">Enviar incidencia</button>
+  </div>
+</div>
+
+<!-- ══════ COOKIE BANNER ══════ -->
+<div class="cookie-banner" id="cookieBanner">
+  <div class="cookie-text">Usamos cookies para mejorar tu experiencia en Beromie.</div>
+  <div class="cookie-actions">
+    <button class="cookie-btn cookie-reject" onclick="dismissCookies()">Solo necesarias</button>
+    <button class="cookie-btn cookie-accept" onclick="dismissCookies()">Aceptar todas</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════════════════
+//  ⚠️  CONFIGURACIÓN — reemplaza con tus credenciales
+//  Supabase > Settings > API
+// ══════════════════════════════════════════════════════
+const SUPABASE_URL  = 'https://zvjgxmdstaxwnlxqgsyx.supabase.co';
+const SUPABASE_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp2amd4bWRzdGF4d25seHFnc3l4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ1NjM3NTMsImV4cCI6MjA5MDEzOTc1M30.zvn4vOlmobECsMUeAxm4LH1UzaNmyJWJqBkignSVa6E';
+// ══════════════════════════════════════════════════════
+
+const { createClient } = supabase;
+const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// ─── STATE ───────────────────────────────────────────
+let currentUser = null;
+let currentProfile = null;
+let currentRoom = null;
+let currentBooking = null;
+let allRooms = [];
+let activeFilter = '';
+let messageChannel = null;
+
+// ─── THUMB COLORS ─────────────────────────────────────
+const thumbColors = ['#F5EEE6','#E6EFF5','#E6F5EC','#F0E6F5','#F5F0E6','#F5E6EE'];
+const thumbEmojis = ['🛏','🪟','☀️','🏙️','🛏','🌟'];
+
+// ─── INIT ─────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', async () => {
+  // Timeout de seguridad: si algo falla, ocultar el loading en 5s
+  const loadingTimeout = setTimeout(() => hideLoading(), 5000);
+
+  try {
+    // Auth state listener
+    sb.auth.onAuthStateChange(async (event, session) => {
+      currentUser = session?.user || null;
+      if (currentUser) {
+        await loadProfile();
+        updateUIForAuth();
+      } else {
+        currentProfile = null;
+        updateUIForGuest();
+      }
+    });
+
+    // Sesión inicial y habitaciones en paralelo
+    const [{ data: { session } }] = await Promise.all([
+      sb.auth.getSession()
+    ]);
+
+    currentUser = session?.user || null;
+    if (currentUser) {
+      await loadProfile();
+      updateUIForAuth();
+    } else {
+      updateUIForGuest();
+    }
+
+    await loadRooms();
+  } catch(e) {
+    console.error('Init error:', e);
+  } finally {
+    clearTimeout(loadingTimeout);
+    hideLoading();
+  }
+});
+
+function hideLoading() {
+  const el = document.getElementById('loading');
+  if (!el) return;
+  el.style.opacity = '0';
+  setTimeout(() => el.classList.add('hidden'), 300);
+}
+
+// ─── AUTH UI ──────────────────────────────────────────
+function updateUIForAuth() {
+  const avatar = document.getElementById('userAvatar');
+  const btnLogin = document.getElementById('btnLogin');
+  const bellDot = document.getElementById('bellDot');
+  const initials = currentProfile?.full_name
+    ? currentProfile.full_name.split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase()
+    : currentUser.email[0].toUpperCase();
+  avatar.textContent = initials;
+  avatar.style.display = 'flex';
+  btnLogin.style.display = 'none';
+  bellDot.style.display = 'block';
+  // Mostrar botón admin si es admin
+  const adminBtn = document.getElementById('nb-admin');
+  if (adminBtn) adminBtn.style.display = currentProfile?.role === 'admin' ? 'flex' : 'none';
+
+  const menuDash = document.getElementById('menuDashboard');
+  if (currentProfile?.role === 'owner') {
+    menuDash.textContent = '📊 Panel propietario';
+    menuDash.onclick = () => { toggleUserMenu(); go('owner'); };
+  } else {
+    menuDash.textContent = '🏠 Mi habitación';
+    menuDash.onclick = () => { toggleUserMenu(); go('tenant'); };
+  }
+}
+
+function updateUIForGuest() {
+  document.getElementById('userAvatar').style.display = 'none';
+  document.getElementById('btnLogin').style.display = 'flex';
+  document.getElementById('bellDot').style.display = 'none';
+  document.getElementById('userMenu').classList.remove('open');
+}
+
+function toggleUserMenu() {
+  document.getElementById('userMenu').classList.toggle('open');
+}
+
+// Close menu on outside click
+document.addEventListener('click', (e) => {
+  const menu = document.getElementById('userMenu');
+  const avatar = document.getElementById('userAvatar');
+  if (!menu.contains(e.target) && !avatar.contains(e.target)) {
+    menu.classList.remove('open');
+  }
+});
+
+// ─── PROFILE ──────────────────────────────────────────
+async function loadProfile() {
+  if (!currentUser) return;
+  const { data } = await sb.from('profiles').select('*').eq('id', currentUser.id).single();
+  currentProfile = data;
+  if (data) {
+    document.getElementById('profileName').value = data.full_name || '';
+    document.getElementById('profilePhone').value = data.phone || '';
+    document.getElementById('profileDni').value = data.dni || '';
+    document.getElementById('profileRole').value = data.role || 'tenant';
+  }
+}
+
+async function saveProfile() {
+  if (!currentUser) return;
+  const updates = {
+    full_name: document.getElementById('profileName').value,
+    phone: document.getElementById('profilePhone').value,
+    dni: document.getElementById('profileDni').value,
+    role: document.getElementById('profileRole').value,
+    updated_at: new Date().toISOString()
+  };
+  const { error } = await sb.from('profiles').update(updates).eq('id', currentUser.id);
+  if (error) { toast('Error al guardar: ' + error.message); return; }
+  currentProfile = { ...currentProfile, ...updates };
+  updateUIForAuth();
+  toast('Perfil guardado correctamente ✓');
+}
+
+// ─── AUTH ACTIONS ─────────────────────────────────────
+async function signIn() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const pwd   = document.getElementById('loginPassword').value;
+  if (!email || !pwd) { showModalError('Completa todos los campos'); return; }
+  setModalLoading(true);
+  const { error } = await sb.auth.signInWithPassword({ email, password: pwd });
+  setModalLoading(false);
+  if (error) { showModalError(error.message); return; }
+  closeModal();
+  toast('¡Bienvenido/a de vuelta a Beromie! 👋');
+  routeUserByRole();
+}
+
+async function signUp() {
+  const name  = document.getElementById('regName').value.trim();
+  const email = document.getElementById('regEmail').value.trim();
+  const pwd   = document.getElementById('regPassword').value;
+  const role  = document.getElementById('regRole').value;
+  if (!name || !email || !pwd) { showModalError('Completa todos los campos'); return; }
+  if (pwd.length < 8) { showModalError('La contraseña debe tener al menos 8 caracteres'); return; }
+  setModalLoading(true);
+  const { error } = await sb.auth.signUp({
+    email, password: pwd,
+    options: {
+      data: { full_name: name, role },
+      emailRedirectTo: 'https://beromie.vercel.app'
+    }
+  });
+  setModalLoading(false);
+  if (error) { showModalError(error.message); return; }
+  closeModal();
+  showEmailConfirmBanner(email);
+}
+
+function showEmailConfirmBanner(email) {
+  const existing = document.getElementById('emailConfirmBanner');
+  if (existing) existing.remove();
+  const banner = document.createElement('div');
+  banner.id = 'emailConfirmBanner';
+  banner.style.cssText = [
+    'position:fixed','top:70px','left:50%','transform:translateX(-50%)',
+    'z-index:999','background:#0C0C0B','color:#fff',
+    'padding:16px 24px','border-radius:14px',
+    'box-shadow:0 8px 40px rgba(0,0,0,0.18)',
+    'display:flex','align-items:flex-start','gap:14px',
+    'max-width:420px','width:calc(100% - 40px)'
+  ].join(';');
+  banner.innerHTML = `
+    <div style="font-size:22px;flex-shrink:0">📧</div>
+    <div style="flex:1">
+      <div style="font-size:14px;font-weight:600;margin-bottom:4px">Revisa tu email</div>
+      <div style="font-size:13px;color:rgba(255,255,255,0.65);line-height:1.5">
+        Hemos enviado un enlace de confirmación a <strong style="color:#fff">${email}</strong>.<br>
+        Haz clic en el enlace para activar tu cuenta y poder iniciar sesión.
+      </div>
+    </div>
+    <button onclick="document.getElementById('emailConfirmBanner').remove()"
+      style="background:none;border:none;color:rgba(255,255,255,0.4);font-size:18px;cursor:pointer;flex-shrink:0;padding:0">✕</button>
+  `;
+  document.body.appendChild(banner);
+  setTimeout(() => { if (banner.parentNode) banner.remove(); }, 12000);
+}
+
+async function signInGoogle() {
+  const { error } = await sb.auth.signInWithOAuth({
+    provider: 'google',
+    options: { redirectTo: window.location.href }
+  });
+  if (error) toast('Error con Google: ' + error.message);
+}
+
+async function signOut() {
+  await sb.auth.signOut();
+  currentUser = null;
+  currentProfile = null;
+  currentBooking = null;
+  go('landing');
+  toast('Sesión cerrada. ¡Hasta pronto!');
+}
+
+function routeUserByRole() {
+  if (currentProfile?.role === 'owner') go('owner');
+  else go('tenant');
+}
+
+function requireAuth(screen) {
+  if (!currentUser) { openModal(); return; }
+  go(screen);
+  if (screen === 'tenant') loadTenantDashboard();
+  if (screen === 'owner') loadOwnerDashboard();
+}
+
+// ─── ROOMS ────────────────────────────────────────────
+async function loadRooms() {
+  let query = sb.from('rooms').select('*');
+
+  const zone  = document.getElementById('filterZone')?.value;
+  const price = document.getElementById('filterPrice')?.value;
+
+  if (zone) query = query.eq('zone', zone);
+  if (price) query = query.lte('price', parseInt(price));
+  if (activeFilter === 'available') query = query.eq('status', 'available');
+  if (activeFilter === 'private') query = query.eq('bath_type', 'private');
+  if (activeFilter === 'cheap') query = query.lte('price', 350);
+  if (activeFilter === 'umu') query = query.eq('near_umu', true);
+
+  const sort = document.getElementById('sortSel')?.value || 'newest';
+  if (sort === 'price_asc') query = query.order('price', { ascending: true });
+  else if (sort === 'price_desc') query = query.order('price', { ascending: false });
+  else query = query.order('created_at', { ascending: false });
+
+  const { data, error } = await query;
+  if (error) { toast('Error cargando habitaciones'); return; }
+  allRooms = data || [];
+  renderRooms(allRooms);
+
+  // Update hero stat
+  const availableCount = allRooms.filter(r => r.status === 'available').length;
+  document.getElementById('stat-rooms').innerHTML = `<em>${availableCount}</em>`;
+  document.getElementById('results-count').innerHTML = `<strong>${allRooms.length} habitaciones</strong> en Murcia`;
+}
+
+function renderRooms(rooms) {
+  const grid = document.getElementById('roomsGrid');
+  if (rooms.length === 0) {
+    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1">
+      <div class="empty-state-icon">🏠</div>
+      <div class="empty-state-title">No hay habitaciones con estos filtros</div>
+      <p style="font-size:14px;color:var(--gray-400)">Prueba a cambiar la zona o el precio</p>
+    </div>`;
+    return;
+  }
+  grid.innerHTML = rooms.map((room, i) => {
+    const color = thumbColors[i % thumbColors.length];
+    const emoji = thumbEmojis[i % thumbEmojis.length];
+    const badge = room.verified
+      ? `<span class="rchip chip-v">✓ Verificada</span>`
+      : `<span class="rchip chip-n">Nuevo</span>`;
+    const avail = room.status === 'available'
+      ? `<span class="atag at-free">Disponible</span>`
+      : room.status === 'reserved'
+      ? `<span class="atag at-soon">Reservada</span>`
+      : `<span class="atag at-full">Ocupada</span>`;
+    const bath = room.bath_type === 'private' ? '🚿 Baño propio' : '🛁 Baño comp.';
+    return `<div class="rcard" onclick="openRoom('${room.id}')" style="opacity:${room.status==='occupied'?0.6:1}">
+      <div class="rthumb" style="background:${color}">${emoji}${badge}</div>
+      <div class="rcbody">
+        <div class="rczone">${room.zone}</div>
+        <div class="rcname">${room.title}</div>
+        <div class="rcpills">
+          <span class="rcpill">${bath}</span>
+          <span class="rcpill">📶 Wifi</span>
+          ${room.size_m2 ? `<span class="rcpill">📐 ${room.size_m2}m²</span>` : ''}
+        </div>
+        <div class="rcfoot">
+          <div class="rcprice">${room.price}€ <span>/mes</span></div>
+          ${avail}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function openRoom(id) {
+  currentRoom = allRooms.find(r => r.id === id);
+  if (!currentRoom) {
+    const { data } = await sb.from('rooms').select('*').eq('id', id).single();
+    currentRoom = data;
+  }
+  renderDetail(currentRoom);
+  go('detail');
+}
+
+function renderDetail(room) {
+  if (!room) return;
+  const amenities = (room.amenities || []).map(a => `<div class="amen">✓ ${a}</div>`).join('');
+  const verifiedBadge = room.verified
+    ? `<div class="std-banner"><div class="std-icon">🏅</div><div class="std-text"><strong>Estándar Beromie verificado</strong><p>Esta habitación ha sido inspeccionada en persona y cumple todos los requisitos del estándar Beromie.</p></div></div>`
+    : '';
+  const deposit = room.price;
+  const total = room.price + deposit + 59;
+
+  document.getElementById('detailContent').innerHTML = `
+    <div>
+      <div class="gallery">🛏</div>
+      <div class="dzone">${room.zone} · Murcia</div>
+      <div class="dtitle">${room.title}</div>
+      <div class="dfeats">
+        ${room.size_m2 ? `<div class="dfeat">📐 ${room.size_m2} m²</div>` : ''}
+        <div class="dfeat">${room.bath_type === 'private' ? '🚿 Baño propio' : '🛁 Baño compartido'}</div>
+        <div class="dfeat">📶 Wifi ${room.wifi_mbps || 100}Mb</div>
+        ${room.near_umu ? '<div class="dfeat">🎓 Cerca UMU</div>' : ''}
+        ${room.near_ucam ? '<div class="dfeat">🎓 Cerca UCAM</div>' : ''}
+        ${room.ac ? '<div class="dfeat">🌬️ A/C incluido</div>' : ''}
+      </div>
+      ${room.description ? `<div class="sec-h">Descripción</div><p class="ddesc">${room.description}</p>` : ''}
+      ${amenities ? `<div class="sec-h">Lo que incluye</div><div class="amen-grid">${amenities}</div>` : ''}
+      ${verifiedBadge}
+    </div>
+    <div>
+      <div class="book-widget">
+        <div class="book-price">${room.price}€ <span>/mes</span></div>
+        <div class="book-avail">Disponible ahora</div>
+        <div class="vn">🪪 Verificación de identidad requerida (DNI/NIE). Proceso en 2 min.</div>
+        <div class="bf"><label>Fecha de entrada</label><input type="date" id="bookDate" value="${new Date().toISOString().split('T')[0]}"></div>
+        <div class="bf"><label>Duración</label>
+          <select id="bookDuration">
+            <option value="9">Curso completo (9 meses)</option>
+            <option value="6">6 meses</option>
+            <option value="4">4 meses (período académico)</option>
+            <option value="3">3 meses</option>
+          </select>
+        </div>
+        <div class="bdown">
+          <div class="brow"><span>Renta mensual</span><span>${room.price} €</span></div>
+          <div class="brow"><span>Fianza (1 mes)</span><span>${deposit} €</span></div>
+          <div class="brow"><span>Fee de entrada Beromie</span><span>59 €</span></div>
+          <div class="brow"><span>Kit bienvenida</span><span>Incluido 🎁</span></div>
+          <div class="brow tot"><span>Total hoy</span><span>${total} €</span></div>
+        </div>
+        <button class="book-cta" onclick="createBooking('${room.id}','${room.price}')">Reservar ahora →</button>
+        <p class="book-note">Pago seguro · Stripe · Sin compromiso hasta firmar</p>
+      </div>
+    </div>`;
+}
+
+async function createBooking(roomId, price) {
+  if (!currentUser) { openModal(); return; }
+  const startDate = document.getElementById('bookDate').value;
+  const duration = parseInt(document.getElementById('bookDuration').value);
+  if (!startDate) { toast('Selecciona una fecha de entrada'); return; }
+  const { data, error } = await sb.from('bookings').insert({
+    room_id: roomId,
+    tenant_id: currentUser.id,
+    start_date: startDate,
+    duration_months: duration,
+    deposit: parseFloat(price),
+    status: 'pending'
+  }).select().single();
+  if (error) { toast('Error al reservar: ' + error.message); return; }
+  toast('¡Reserva creada! Te contactamos en menos de 24h 🎉');
+  setTimeout(() => go('tenant'), 1500);
+}
+
+// ─── TENANT DASHBOARD ─────────────────────────────────
+async function loadTenantDashboard() {
+  if (!currentUser) return;
+  const name = currentProfile?.full_name?.split(' ')[0] || 'inquilino';
+  document.getElementById('tenantName').textContent = name;
+
+  // Cargar TODAS las reservas del inquilino
+  const { data: bookings } = await sb.from('bookings')
+    .select('*, rooms(*)')
+    .eq('tenant_id', currentUser.id)
+    .order('created_at', { ascending: false });
+
+  // Usar la más reciente como reserva principal
+  const booking = bookings?.[0] || null;
+  currentBooking = booking;
+
+  if (booking?.rooms) {
+    const room = booking.rooms;
+    document.getElementById('tenantSub').textContent = `${room.title} · ${room.zone}`;
+    document.getElementById('tenantRoomName').textContent = `${room.title} · ${room.zone}`;
+    document.getElementById('tenantRent').textContent = `${room.price} €`;
+    document.getElementById('tenantRentSub').textContent = `${booking.duration_months} meses · desde ${booking.start_date}`;
+    document.getElementById('tenantRoomChips').innerHTML = `
+      <span class="rbc">${room.size_m2 || '?'} m²</span>
+      <span class="rbc">Wifi incluido</span>
+      <span class="rbc">Suministros incluidos</span>
+      ${room.verified ? '<span class="rbc hl">✓ Estándar Beromie</span>' : ''}
+    `;
+  } else {
+    document.getElementById('tenantSub').textContent = 'Sin reservas activas';
+    document.getElementById('tenantRent').textContent = '—';
+  }
+
+  // Cargar pagos — y si no hay, mostrar las reservas como referencia
+  const { data: payments } = await sb.from('payments')
+    .select('*').eq('tenant_id', currentUser.id).order('created_at', { ascending: false });
+  const tbody = document.getElementById('paymentsBody');
+
+  if (payments?.length) {
+    tbody.innerHTML = payments.map(p => {
+      const statusClass = p.status === 'paid' ? 'sp-ok' : p.status === 'overdue' ? 'sp-late' : 'sp-pend';
+      const statusTxt = p.status === 'paid' ? '✓ Pagado' : p.status === 'overdue' ? 'Vencido' : 'Pendiente';
+      const date = new Date(p.created_at).toLocaleDateString('es-ES', {month:'long',year:'numeric'});
+      return `<tr><td>${date}</td><td>${p.concept}</td><td><strong>${p.amount} €</strong></td><td><span class="spill ${statusClass}">${statusTxt}</span></td></tr>`;
+    }).join('');
+  } else if (bookings?.length) {
+    // Sin pagos aún — mostrar reservas pendientes como referencia
+    const bStatusMap = {
+      pending:   ['sp-pend', 'Pendiente de confirmar'],
+      confirmed: ['sp-ok',   '✓ Confirmada'],
+      cancelled: ['sp-late', 'Cancelada']
+    };
+    tbody.innerHTML = bookings.map(b => {
+      const room = b.rooms;
+      const [cls, txt] = bStatusMap[b.status] || ['sp-pend', 'Pendiente'];
+      const date = new Date(b.created_at).toLocaleDateString('es-ES', {day:'numeric', month:'long', year:'numeric'});
+      return `<tr>
+        <td>${date}</td>
+        <td>${room?.title || 'Habitación'} · ${room?.zone || ''}</td>
+        <td><strong>${room?.price || '—'} €/mes</strong><br><span style="font-size:12px;color:var(--gray-400)">${b.duration_months} meses · desde ${b.start_date}</span></td>
+        <td><span class="spill ${cls}">${txt}</span></td>
+      </tr>`;
+    }).join('');
+    // Añadir cabecera informativa
+    const tableHead = tbody.closest('table').querySelector('thead tr');
+    if (tableHead) tableHead.innerHTML = '<th>Fecha solicitud</th><th>Habitación</th><th>Condiciones</th><th>Estado</th>';
+  } else {
+    tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;color:var(--gray-400);padding:24px">Sin reservas ni pagos todavía</td></tr>`;
+  }
+
+  // Métricas
+  const pendingCount = bookings?.filter(b => b.status === 'pending').length || 0;
+  const confirmedCount = bookings?.filter(b => b.status === 'confirmed').length || 0;
+  if (bookings?.length) {
+    document.getElementById('tenantRent').textContent = confirmedCount > 0
+      ? `${booking?.rooms?.price} €`
+      : `${bookings.length} reserva${bookings.length > 1 ? 's' : ''}`;
+    document.getElementById('tenantRentSub').textContent = confirmedCount > 0
+      ? `Confirmada · ${booking?.duration_months} meses`
+      : `${pendingCount} pendiente${pendingCount > 1 ? 's' : ''} de confirmación`;
+  }
+
+  await loadIncidents();
+  await loadMessages();
+}
+
+// ─── INCIDENTS ────────────────────────────────────────
+async function loadIncidents() {
+  if (!currentUser) return;
+  const { data: incidents } = await sb.from('incidents')
+    .select('*').eq('tenant_id', currentUser.id).order('created_at', { ascending: false });
+
+  const list = document.getElementById('incidentsList');
+  const openCount = incidents?.filter(i => i.status === 'open' || i.status === 'in_progress').length || 0;
+  document.getElementById('tenantIncCount').textContent = openCount > 0 ? `${openCount} abierta${openCount > 1 ? 's' : ''}` : 'Sin abiertas';
+  document.getElementById('tenantIncSub').textContent = openCount > 0 ? 'En gestión' : 'Todo resuelto ✓';
+
+  if (!incidents?.length) {
+    list.innerHTML = `<div class="empty-state"><div class="empty-state-icon">✓</div><div class="empty-state-title">Sin incidencias</div></div>`;
+    return;
+  }
+  const icons = { open: '⚠️', in_progress: '🔧', resolved: '✓' };
+  const statusMap = { open: ['sp-pend','Abierta'], in_progress: ['sp-pend','En gestión'], resolved: ['sp-ok','Resuelta'] };
+  list.innerHTML = incidents.map(inc => {
+    const [cls, txt] = statusMap[inc.status] || ['sp-pend','Abierta'];
+    const date = new Date(inc.created_at).toLocaleDateString('es-ES');
+    return `<div class="inc">
+      <div class="inc-ico">${icons[inc.status] || '⚠️'}</div>
+      <div class="inc-info"><div class="inc-title-txt">${inc.title}</div><div class="inc-date">${date}</div></div>
+      <span class="spill ${cls}">${txt}</span>
+    </div>`;
+  }).join('');
+}
+
+function openIncidentModal() {
+  if (!currentUser) { openModal(); return; }
+  document.getElementById('incModalOverlay').classList.add('open');
+}
+
+function closeIncModal(e) {
+  if (!e || e.target === document.getElementById('incModalOverlay')) {
+    document.getElementById('incModalOverlay').classList.remove('open');
+  }
+}
+
+async function submitIncident() {
+  const title = document.getElementById('incTitle').value.trim();
+  const desc  = document.getElementById('incDesc').value.trim();
+  if (!title) { toast('Añade un título a la incidencia'); return; }
+  const roomId = currentBooking?.room_id || null;
+  const { error } = await sb.from('incidents').insert({
+    tenant_id: currentUser.id,
+    room_id: roomId,
+    title, description: desc,
+    status: 'open'
+  });
+  if (error) { toast('Error al enviar: ' + error.message); return; }
+  document.getElementById('incTitle').value = '';
+  document.getElementById('incDesc').value = '';
+  closeIncModal();
+  toast('Incidencia enviada. Gestionamos en 48h ✓');
+  await loadIncidents();
+}
+
+// ─── MESSAGES ─────────────────────────────────────────
+async function loadMessages() {
+  if (!currentUser) return;
+
+  // Load existing messages
+  const { data: msgs } = await sb.from('messages')
+    .select('*, sender:sender_id(full_name)')
+    .or(`sender_id.eq.${currentUser.id},receiver_id.eq.${currentUser.id}`)
+    .order('created_at', { ascending: true })
+    .limit(50);
+
+  renderMessages(msgs || []);
+
+  // Count unread
+  const { count } = await sb.from('messages')
+    .select('*', { count: 'exact', head: true })
+    .eq('receiver_id', currentUser.id)
+    .eq('read', false);
+  const badge = document.getElementById('unreadBadge');
+  badge.textContent = count || 0;
+  badge.style.display = count > 0 ? 'inline-flex' : 'none';
+
+  // Realtime subscription
+  if (messageChannel) sb.removeChannel(messageChannel);
+  messageChannel = sb.channel('messages-' + currentUser.id)
+    .on('postgres_changes', {
+      event: 'INSERT', schema: 'public', table: 'messages',
+      filter: `receiver_id=eq.${currentUser.id}`
+    }, payload => {
+      renderMessages([...(msgs || []), payload.new]);
+    })
+    .subscribe();
+}
+
+function renderMessages(msgs) {
+  const container = document.getElementById('chatMsgs');
+  if (!msgs.length) {
+    container.innerHTML = `<div style="text-align:center;color:var(--gray-300);font-size:14px;padding:20px">Inicia la conversación con Beromie</div>`;
+    return;
+  }
+  container.innerHTML = msgs.map(m => {
+    const isOut = m.sender_id === currentUser?.id;
+    const time = new Date(m.created_at).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+    return `<div class="msg ${isOut ? 'out' : 'in'}">
+      <div class="mbubble">${m.content}</div>
+      <div class="mtime">${time}</div>
+    </div>`;
+  }).join('');
+  container.scrollTop = container.scrollHeight;
+  if (msgs.length > 0) {
+    document.getElementById('lastMsgPreview').textContent = msgs[msgs.length - 1].content.slice(0, 40) + '...';
+  }
+}
+
+async function sendMessage() {
+  if (!currentUser) { openModal(); return; }
+  const input = document.getElementById('chatInput');
+  const text = input.value.trim();
+  if (!text) return;
+
+  // For now, send to a fixed Beromie support user ID (in production, use actual admin ID)
+  const BEROMIE_SUPPORT_ID = '00000000-0000-0000-0000-000000000000';
+
+  const { error } = await sb.from('messages').insert({
+    sender_id: currentUser.id,
+    receiver_id: BEROMIE_SUPPORT_ID,
+    booking_id: currentBooking?.id || null,
+    content: text
+  });
+
+  if (error) {
+    // Optimistic UI even if no support user exists yet
+    const container = document.getElementById('chatMsgs');
+    const div = document.createElement('div');
+    div.className = 'msg out';
+    div.innerHTML = `<div class="mbubble">${text}</div><div class="mtime">Ahora</div>`;
+    container.appendChild(div);
+    container.scrollTop = container.scrollHeight;
+    setTimeout(() => {
+      const r = document.createElement('div');
+      r.className = 'msg in';
+      r.innerHTML = `<div class="mbubble">Recibido, te respondemos enseguida 👍</div><div class="mtime">Ahora</div>`;
+      container.appendChild(r);
+      container.scrollTop = container.scrollHeight;
+    }, 1200);
+  }
+  input.value = '';
+}
+
+// ─── OWNER DASHBOARD ──────────────────────────────────
+async function loadOwnerDashboard() {
+  if (!currentUser) return;
+  document.getElementById('ownerSub').textContent = `${currentProfile?.full_name || 'Propietario'} · Panel de gestión`;
+
+  // Load owner's rooms
+  const { data: rooms } = await sb.from('rooms')
+    .select('*').eq('owner_id', currentUser.id);
+
+  const totalRooms = rooms?.length || 0;
+  const occupied = rooms?.filter(r => r.status !== 'available').length || 0;
+  const totalRent = rooms?.reduce((sum, r) => sum + (r.price || 0), 0) || 0;
+  const commission = Math.round(totalRent * 0.17);
+  const net = totalRent - commission;
+
+  document.getElementById('ownerIncome').textContent = totalRent > 0 ? `${totalRent} €` : '—';
+  document.getElementById('ownerOccupancy').textContent = totalRooms > 0 ? `${Math.round(occupied/totalRooms*100)}%` : '—';
+  document.getElementById('ownerOccSub').textContent = `${occupied}/${totalRooms} habitaciones`;
+  document.getElementById('ownerCommission').textContent = commission > 0 ? `${commission} €` : '—';
+  document.getElementById('ownerNet').textContent = net > 0 ? `${net} €` : '—';
+
+  // Rooms table
+  const tbody = document.getElementById('ownerRoomsBody');
+  if (rooms?.length) {
+    const statusMap = { available: ['sp-ok','Disponible'], reserved: ['sp-pend','Reservada'], occupied: ['sp-ok','Ocupada'] };
+    tbody.innerHTML = rooms.map(r => {
+      const [cls, txt] = statusMap[r.status] || ['sp-pend','—'];
+      return `<tr><td><strong>${r.title}</strong></td><td>${r.zone}</td><td>${r.price} €</td><td><span class="spill ${cls}">${txt}</span></td></tr>`;
+    }).join('');
+  } else {
+    tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;color:var(--gray-400);padding:24px">Sin habitaciones. <button class="tlink" onclick="toast('Te contactaremos para añadir tu habitación')">Añadir habitación</button></td></tr>`;
+  }
+
+  // Bookings table
+  const { data: bookings } = await sb.from('bookings')
+    .select('*, rooms(title, zone), profiles!tenant_id(full_name)')
+    .in('room_id', rooms?.map(r => r.id) || []);
+
+  const bookBody = document.getElementById('ownerBookingsBody');
+  if (bookings?.length) {
+    const bStatusMap = { pending: ['sp-pend','Pendiente'], confirmed: ['sp-ok','Confirmada'], cancelled: ['sp-late','Cancelada'] };
+    bookBody.innerHTML = bookings.map(b => {
+      const [cls, txt] = bStatusMap[b.status] || ['sp-pend','—'];
+      return `<tr>
+        <td>${b.rooms?.title || '—'}</td>
+        <td>${b.profiles?.full_name || '—'}</td>
+        <td>${b.start_date}</td>
+        <td>${b.duration_months} meses</td>
+        <td><span class="spill ${cls}">${txt}</span></td>
+      </tr>`;
+    }).join('');
+  } else {
+    bookBody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--gray-400);padding:24px">Sin reservas activas</td></tr>`;
+  }
+}
+
+// ─── NAVIGATION ───────────────────────────────────────
+function go(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tnav').forEach(b => b.classList.remove('on'));
+  document.getElementById('screen-' + name)?.classList.add('active');
+  const navMap = { landing: 'nb-landing', detail: 'nb-landing', tenant: 'nb-tenant', owner: 'nb-owner' };
+  if (navMap[name]) document.getElementById(navMap[name])?.classList.add('on');
+  window.scrollTo(0, 0);
+
+  // Lazy load dashboard data
+  if (name === 'tenant' && currentUser) loadTenantDashboard();
+  if (name === 'admin' && currentUser) loadAdminDashboard();
+  if (name === 'owner' && currentUser) loadOwnerDashboard();
+}
+
+function scrollToRooms() {
+  document.getElementById('filterBar').scrollIntoView({ behavior: 'smooth' });
+}
+
+// ─── TABS INQUILINO ──────────────────────────────────
+function setTab(name, el) {
+  document.querySelectorAll('.tc').forEach(t => t.classList.remove('on'));
+  document.querySelectorAll('.dtab').forEach(t => t.classList.remove('on'));
+  document.getElementById('tc-' + name)?.classList.add('on');
+  if (el) el.classList.add('on');
+}
+
+// ─── FILTERS ──────────────────────────────────────────
+function setFilter(el, filter) {
+  document.querySelectorAll('.fp').forEach(p => p.classList.remove('on'));
+  el.classList.add('on');
+  activeFilter = filter;
+  loadRooms();
+}
+
+function sortRooms() { loadRooms(); }
+
+// ─── MODAL ────────────────────────────────────────────
+function openModal() {
+  document.getElementById('modalOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  clearModalError();
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function closeModalOutside(e) {
+  if (e.target === document.getElementById('modalOverlay')) closeModal();
+}
+
+function setModalTab(tab) {
+  document.getElementById('mtab-login').classList.toggle('on', tab === 'login');
+  document.getElementById('mtab-register').classList.toggle('on', tab === 'register');
+  document.getElementById('modalLoginForm').style.display = tab === 'login' ? 'block' : 'none';
+  document.getElementById('modalRegisterForm').style.display = tab === 'register' ? 'block' : 'none';
+  document.getElementById('modalSub').textContent = tab === 'login' ? 'Accede a tu cuenta' : 'Crea tu cuenta gratuita';
+  clearModalError();
+}
+
+function showModalError(msg) {
+  const el = document.getElementById('modalError');
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+
+function clearModalError() {
+  document.getElementById('modalError').style.display = 'none';
+}
+
+function setModalLoading(loading) {
+  document.getElementById('btnLoginSubmit').disabled = loading;
+  document.getElementById('btnRegisterSubmit').disabled = loading;
+  document.getElementById('btnLoginSubmit').textContent = loading ? 'Entrando...' : 'Entrar en Beromie';
+  document.getElementById('btnRegisterSubmit').textContent = loading ? 'Creando cuenta...' : 'Crear mi cuenta';
+}
+
+// ─── COOKIES ──────────────────────────────────────────
+function dismissCookies() {
+  document.getElementById('cookieBanner').style.display = 'none';
+  localStorage.setItem('beromie-cookies', '1');
+}
+
+if (localStorage.getItem('beromie-cookies')) {
+  document.getElementById('cookieBanner').style.display = 'none';
+}
+
+
+// ─── ADMIN ────────────────────────────────────────────
+function requireAdmin() {
+  if (!currentUser) { openModal(); return; }
+  if (currentProfile?.role !== 'admin') { toast('Acceso restringido al equipo Beromie'); return; }
+  go('admin');
+  loadAdminDashboard();
+}
+
+function setAdminTab(name, el) {
+  document.querySelectorAll('.atc').forEach(t => t.classList.remove('on'));
+  document.querySelectorAll('.atab').forEach(t => t.classList.remove('on'));
+  document.getElementById('atc-' + name)?.classList.add('on');
+  if (el) el.classList.add('on');
+  if (name === 'habitaciones') loadAdminRooms();
+  if (name === 'usuarios') loadAdminUsers();
+  if (name === 'incidencias-admin') loadAdminIncidents();
+}
+
+async function loadAdminDashboard() {
+  if (!currentUser || currentProfile?.role !== 'admin') return;
+
+  // Métricas
+  const [{ count: pending }, { count: rooms }, { count: tenants }, { count: incidents }] = await Promise.all([
+    sb.from('bookings').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
+    sb.from('rooms').select('*', { count: 'exact', head: true }),
+    sb.from('profiles').select('*', { count: 'exact', head: true }).eq('role', 'tenant'),
+    sb.from('incidents').select('*', { count: 'exact', head: true }).eq('status', 'open'),
+  ]);
+  document.getElementById('am-pending').textContent = pending || 0;
+  document.getElementById('am-rooms').textContent = rooms || 0;
+  document.getElementById('am-tenants').textContent = tenants || 0;
+  document.getElementById('am-incidents').textContent = incidents || 0;
+
+  // Reservas
+  const { data: bookings } = await sb.from('bookings')
+    .select('*, rooms(title,zone,price), profiles!tenant_id(full_name)')
+    .order('created_at', { ascending: false });
+
+  const bBody = document.getElementById('adminBookingsBody');
+  if (bookings?.length) {
+    const bMap = { pending: ['sp-pend','Pendiente'], confirmed: ['sp-ok','Confirmada'], cancelled: ['sp-late','Cancelada'] };
+    bBody.innerHTML = bookings.map(b => {
+      const [cls, txt] = bMap[b.status] || ['sp-pend','—'];
+      const date = new Date(b.created_at).toLocaleDateString('es-ES', { day:'numeric', month:'short', year:'numeric' });
+      const actions = b.status === 'pending'
+        ? `<button class="action-btn btn-confirm" onclick="updateBookingStatus('${b.id}','confirmed')">✓ Confirmar</button>
+           <button class="action-btn btn-cancel" onclick="updateBookingStatus('${b.id}','cancelled')" style="margin-left:6px">✗ Cancelar</button>`
+        : b.status === 'confirmed'
+        ? `<button class="action-btn btn-cancel" onclick="updateBookingStatus('${b.id}','cancelled')">✗ Cancelar</button>`
+        : `<span style="font-size:12px;color:var(--gray-300)">—</span>`;
+      return `<tr>
+        <td style="font-size:13px">${date}</td>
+        <td><strong>${b.rooms?.title || '—'}</strong><br><span style="font-size:12px;color:var(--gray-400)">${b.rooms?.zone} · ${b.rooms?.price}€/mes</span></td>
+        <td>${b.profiles?.full_name || '—'}</td>
+        <td>${b.duration_months} meses<br><span style="font-size:12px;color:var(--gray-400)">desde ${b.start_date}</span></td>
+        <td><span class="spill ${cls}">${txt}</span></td>
+        <td style="white-space:nowrap">${actions}</td>
+      </tr>`;
+    }).join('');
+  } else {
+    bBody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--gray-400)">Sin reservas</td></tr>`;
+  }
+}
+
+async function updateBookingStatus(id, status) {
+  const { error } = await sb.from('bookings').update({ status }).eq('id', id);
+  if (error) { toast('Error: ' + error.message); return; }
+  const msgs = { confirmed: '✓ Reserva confirmada', cancelled: 'Reserva cancelada' };
+  toast(msgs[status] || 'Actualizado');
+  loadAdminDashboard();
+}
+
+async function loadAdminRooms() {
+  const { data: rooms } = await sb.from('rooms').select('*').order('created_at', { ascending: false });
+  const tbody = document.getElementById('adminRoomsBody');
+  if (!rooms?.length) { tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--gray-400)">Sin habitaciones</td></tr>`; return; }
+  const sMap = { available: ['sp-ok','Disponible'], reserved: ['sp-pend','Reservada'], occupied: ['sp-late','Ocupada'] };
+  tbody.innerHTML = rooms.map(r => {
+    const [cls, txt] = sMap[r.status] || ['sp-pend','—'];
+    const nextStatus = r.status === 'available' ? 'occupied' : 'available';
+    const nextTxt = r.status === 'available' ? 'Marcar ocupada' : 'Marcar disponible';
+    return `<tr>
+      <td><strong>${r.title}</strong></td>
+      <td>${r.zone}</td>
+      <td>${r.price} €/mes</td>
+      <td><span class="spill ${cls}">${txt}</span></td>
+      <td>${r.verified ? '<span style="color:var(--green);font-weight:600">✓ Sí</span>' : '<span style="color:var(--gray-300)">No</span>'}</td>
+      <td style="white-space:nowrap">
+        <button class="action-btn btn-edit" onclick="toggleRoomStatus('${r.id}','${nextStatus}')">${nextTxt}</button>
+        <button class="action-btn btn-confirm" onclick="toggleRoomVerified('${r.id}',${!r.verified})" style="margin-left:6px">${r.verified ? 'Desverificar' : 'Verificar'}</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+async function toggleRoomStatus(id, status) {
+  await sb.from('rooms').update({ status }).eq('id', id);
+  toast('Estado actualizado');
+  loadAdminRooms();
+}
+
+async function toggleRoomVerified(id, verified) {
+  await sb.from('rooms').update({ verified }).eq('id', id);
+  toast(verified ? '✓ Habitación verificada' : 'Verificación retirada');
+  loadAdminRooms();
+}
+
+async function createRoom() {
+  const title = document.getElementById('nh-title').value.trim();
+  const zone = document.getElementById('nh-zone').value;
+  const address = document.getElementById('nh-address').value.trim();
+  const price = parseFloat(document.getElementById('nh-price').value);
+  const size_m2 = parseFloat(document.getElementById('nh-size').value) || null;
+  const bath_type = document.getElementById('nh-bath').value;
+  const wifi_mbps = parseInt(document.getElementById('nh-wifi').value) || 100;
+  const status = document.getElementById('nh-status').value;
+  const description = document.getElementById('nh-desc').value.trim();
+  const amenitiesRaw = document.getElementById('nh-amenities').value;
+  const amenities = amenitiesRaw.split(',').map(a => a.trim()).filter(Boolean);
+  const verified = document.getElementById('nh-verified').checked;
+  const near_umu = document.getElementById('nh-umu').checked;
+  const near_ucam = document.getElementById('nh-ucam').checked;
+  const ac = document.getElementById('nh-ac').checked;
+
+  if (!title || !price) { toast('El título y el precio son obligatorios'); return; }
+
+  const { error } = await sb.from('rooms').insert({
+    title, zone, address, price, size_m2, bath_type, wifi_mbps,
+    status, description, amenities, verified, near_umu, near_ucam, ac,
+    owner_id: currentUser.id
+  });
+
+  if (error) { toast('Error: ' + error.message); return; }
+  toast('✓ Habitación añadida correctamente');
+  // Limpiar formulario
+  ['nh-title','nh-address','nh-price','nh-size','nh-desc','nh-amenities'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('nh-verified').checked = false;
+  document.getElementById('nh-umu').checked = false;
+  document.getElementById('nh-ucam').checked = false;
+  document.getElementById('nh-ac').checked = false;
+  loadRooms();
+}
+
+async function loadAdminUsers() {
+  const { data: profiles } = await sb.from('profiles').select('*').order('created_at', { ascending: false });
+  const tbody = document.getElementById('adminUsersBody');
+  if (!profiles?.length) { tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:24px;color:var(--gray-400)">Sin usuarios</td></tr>`; return; }
+
+  // Contar reservas por usuario
+  const { data: bookings } = await sb.from('bookings').select('tenant_id');
+  const bookingCount = {};
+  bookings?.forEach(b => { bookingCount[b.tenant_id] = (bookingCount[b.tenant_id] || 0) + 1; });
+
+  const roleMap = { tenant: ['sp-ok','Inquilino'], owner: ['sp-pend','Propietario'], admin: ['sp-late','Admin'] };
+  tbody.innerHTML = profiles.map(p => {
+    const [cls, txt] = roleMap[p.role] || ['sp-pend','—'];
+    const bCount = bookingCount[p.id] || 0;
+    const roleOptions = ['tenant','owner','admin'].map(r =>
+      `<option value="${r}" ${p.role===r?'selected':''}>${r}</option>`
+    ).join('');
+    return `<tr>
+      <td><strong>${p.full_name || '—'}</strong></td>
+      <td style="font-size:13px;color:var(--gray-500)">${p.id.slice(0,8)}...</td>
+      <td>
+        <select class="action-btn btn-edit" onchange="updateUserRole('${p.id}',this.value)" style="padding:5px 8px;border:1px solid var(--border-md);border-radius:6px;font-size:12px">
+          ${roleOptions}
+        </select>
+      </td>
+      <td>${bCount} reserva${bCount !== 1 ? 's' : ''}</td>
+      <td><span class="spill ${cls}">${txt}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+async function updateUserRole(id, role) {
+  const { error } = await sb.from('profiles').update({ role }).eq('id', id);
+  if (error) { toast('Error: ' + error.message); return; }
+  toast('Rol actualizado');
+  if (id === currentUser?.id) { currentProfile.role = role; updateUIForAuth(); }
+}
+
+async function loadAdminIncidents() {
+  const { data: incidents } = await sb.from('incidents')
+    .select('*, profiles!tenant_id(full_name), rooms(title)')
+    .order('created_at', { ascending: false });
+  const tbody = document.getElementById('adminIncidentsBody');
+  if (!incidents?.length) { tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--gray-400)">Sin incidencias</td></tr>`; return; }
+  const sMap = { open: ['sp-pend','Abierta'], in_progress: ['sp-ok','En gestión'], resolved: ['sp-ok','Resuelta'] };
+  tbody.innerHTML = incidents.map(inc => {
+    const [cls, txt] = sMap[inc.status] || ['sp-pend','—'];
+    const date = new Date(inc.created_at).toLocaleDateString('es-ES');
+    const nextStatus = inc.status === 'open' ? 'in_progress' : inc.status === 'in_progress' ? 'resolved' : 'open';
+    const nextTxt = inc.status === 'open' ? 'En gestión' : inc.status === 'in_progress' ? 'Resolver' : 'Reabrir';
+    return `<tr>
+      <td style="font-size:13px">${date}</td>
+      <td><strong>${inc.title}</strong></td>
+      <td>${inc.profiles?.full_name || '—'}</td>
+      <td style="font-size:13px">${inc.rooms?.title || '—'}</td>
+      <td><span class="spill ${cls}">${txt}</span></td>
+      <td><button class="action-btn btn-confirm" onclick="updateIncidentStatus('${inc.id}','${nextStatus}')">${nextTxt}</button></td>
+    </tr>`;
+  }).join('');
+}
+
+async function updateIncidentStatus(id, status) {
+  const updates = { status };
+  if (status === 'resolved') updates.resolved_at = new Date().toISOString();
+  await sb.from('incidents').update(updates).eq('id', id);
+  toast('Incidencia actualizada');
+  loadAdminIncidents();
+}
+
+// ─── TOAST ────────────────────────────────────────────
+let toastTimer;
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 3500);
+}
+</script>
+</body>
+</html>
