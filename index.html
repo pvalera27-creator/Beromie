@@ -8,8 +8,9 @@
 <meta name="keywords" content="habitaciones estudiantes, alquiler habitaciones, piso estudiantes, beromie, habitaciones verificadas">
 <meta property="og:title" content="Beromie — Habitaciones verificadas para estudiantes">
 <meta property="og:description" content="Habitaciones gestionadas al 100%. Busca por ciudad y reserva online en minutos.">
-<meta property="og:url" content="https://beromie.vercel.app">
+<meta property="og:url" content="https://beromie.es">
 <meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23F0135E'/><text y='.9em' font-size='68' x='12' fill='white' font-family='Arial Black,sans-serif' font-weight='900'>B</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -334,6 +335,40 @@ tr:hover td { background: var(--gray-50); }
 /* Toast */
 .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px); z-index: 999; background: var(--black); color: var(--white); padding: 12px 22px; border-radius: 99px; font-size: 14px; font-weight: 500; opacity: 0; pointer-events: none; transition: all 0.3s cubic-bezier(.4,0,.2,1); white-space: nowrap; box-shadow: var(--shadow-lg); }
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ── ADMIN ── */
+.admin-badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; background: var(--black); color: var(--white); border-radius: 99px; font-size: 12px; font-weight: 700; }
+.admin-tabs { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 20px; }
+.atab { padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; border: 1px solid var(--border-md); background: none; font-family: 'Outfit', sans-serif; color: var(--gray-500); transition: var(--t); }
+.atab:hover { background: var(--gray-50); color: var(--black); }
+.atab.on { background: var(--black); color: var(--white); border-color: var(--black); }
+.atc { display: none; }
+.atc.on { display: block; }
+.action-btn { padding: 5px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1px solid var(--border-md); background: none; font-family: 'Outfit', sans-serif; transition: var(--t); }
+.btn-confirm { background: var(--green-pale); color: var(--green); border-color: var(--green); }
+.btn-confirm:hover { background: var(--green); color: var(--white); }
+.btn-cancel { background: var(--pink-pale); color: var(--pink); border-color: var(--pink-mid); }
+.btn-cancel:hover { background: var(--pink); color: var(--white); }
+.btn-edit { background: var(--gray-50); color: var(--gray-700); }
+.btn-edit:hover { background: var(--gray-100); }
+.stat-highlight { border-color: var(--pink-mid); }
+.stat-highlight .met-val { color: var(--pink); }
+.room-form { background: var(--white); border: 1px solid var(--border-md); border-radius: var(--r-lg); padding: 24px; }
+.form-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media(max-width:600px){ .form-grid-2 { grid-template-columns: 1fr; } }
+.form-row { display: flex; flex-direction: column; gap: 5px; }
+.form-row label { font-size: 11px; font-weight: 700; color: var(--gray-400); text-transform: uppercase; letter-spacing: 0.5px; }
+.form-row input, .form-row select, .form-row textarea { border: 1px solid var(--border-md); border-radius: var(--r-sm); padding: 10px 13px; font-size: 14px; background: var(--gray-50); color: var(--black); outline: none; font-family: 'Outfit', sans-serif; width: 100%; transition: border-color var(--t); }
+.form-row input:focus, .form-row select:focus, .form-row textarea:focus { border-color: var(--pink); background: var(--white); }
+
+/* ── PÁGINAS LEGALES ── */
+.legal-screen { max-width: 720px; margin: 0 auto; padding: 40px 40px 80px; }
+@media(max-width:600px){ .legal-screen { padding: 24px 20px 60px; } }
+.legal-screen h1 { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800; margin-bottom: 8px; }
+.legal-screen h2 { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 700; margin: 28px 0 10px; }
+.legal-screen p, .legal-screen li { font-size: 15px; color: var(--gray-500); line-height: 1.8; margin-bottom: 10px; }
+.legal-screen ul { padding-left: 20px; margin-bottom: 12px; }
+.legal-date { font-size: 13px; color: var(--gray-400); margin-bottom: 32px; }
 </style>
 </head>
 <body>
@@ -663,6 +698,48 @@ tr:hover td { background: var(--gray-50); }
   </div>
 </div>
 
+<!-- ══════ SCREEN: TÉRMINOS ══════ -->
+<div class="screen" id="screen-terms">
+  <div class="legal-screen">
+    <button class="back-btn" onclick="go('landing')">← Volver</button>
+    <h1>Términos de uso</h1>
+    <p class="legal-date">Última actualización: marzo 2025</p>
+    <h2>1. Objeto</h2>
+    <p>Beromie es una plataforma de intermediación y gestión de alquiler de habitaciones para estudiantes. Al usar Beromie aceptas estos términos.</p>
+    <h2>2. Proceso de reserva</h2>
+    <p>La reserva online supone una solicitud, no un contrato vinculante. El contrato de arrendamiento se firma por separado entre Beromie y el inquilino una vez confirmada la disponibilidad.</p>
+    <h2>3. Comisión y honorarios</h2>
+    <p>Beromie cobra un fee de entrada de 59 € al formalizar el contrato, y gestiona la vivienda percibiendo una comisión del 17% de la renta mensual del propietario.</p>
+    <h2>4. Responsabilidades</h2>
+    <p>Beromie actúa como gestor de las habitaciones verificadas publicadas en la plataforma. No somos responsables de habitaciones ofertadas por terceros fuera de nuestra plataforma.</p>
+    <h2>5. Contacto</h2>
+    <p>Para cualquier consulta escríbenos a <a href="mailto:hola@beromie.es" style="color:var(--pink)">hola@beromie.es</a></p>
+  </div>
+</div>
+
+<!-- ══════ SCREEN: PRIVACIDAD ══════ -->
+<div class="screen" id="screen-privacy">
+  <div class="legal-screen">
+    <button class="back-btn" onclick="go('landing')">← Volver</button>
+    <h1>Política de privacidad</h1>
+    <p class="legal-date">Última actualización: marzo 2025</p>
+    <h2>1. Responsable del tratamiento</h2>
+    <p>Beromie, con email de contacto hola@beromie.es, es responsable del tratamiento de tus datos personales.</p>
+    <h2>2. Datos que recogemos</h2>
+    <ul>
+      <li>Nombre completo y email para crear tu cuenta</li>
+      <li>DNI/NIE para verificar tu identidad al firmar el contrato</li>
+      <li>Teléfono de contacto (opcional)</li>
+    </ul>
+    <h2>3. Finalidad</h2>
+    <p>Usamos tus datos para gestionar tu reserva, enviarte comunicaciones relacionadas con tu habitación y cumplir con obligaciones legales.</p>
+    <h2>4. Tus derechos</h2>
+    <p>Puedes ejercer tus derechos de acceso, rectificación, supresión y portabilidad escribiendo a <a href="mailto:hola@beromie.es" style="color:var(--pink)">hola@beromie.es</a></p>
+    <h2>5. Cookies</h2>
+    <p>Usamos cookies técnicas necesarias para el funcionamiento de la plataforma y cookies de análisis para mejorar el servicio.</p>
+  </div>
+</div>
+
 <!-- ══════ MODAL: LOGIN/REGISTER ══════ -->
 <div class="modal-overlay" id="modalOverlay" onclick="closeModalOutside(event)">
   <div class="modal">
@@ -693,7 +770,7 @@ tr:hover td { background: var(--gray-50); }
     </div>
     <div class="modal-divider"><div class="modal-divider-line"></div><span>o</span><div class="modal-divider-line"></div></div>
     <button class="modal-google" onclick="signInGoogle()">🔵 Continuar con Google</button>
-    <div class="modal-terms">Al continuar aceptas los <a>Términos</a> y la <a>Política de privacidad</a> de Beromie.</div>
+    <div class="modal-terms">Al continuar aceptas los <a onclick="closeModal();go('terms')" style="cursor:pointer">Términos</a> y la <a onclick="closeModal();go('privacy')" style="cursor:pointer">Política de privacidad</a> de Beromie.</div>
   </div>
 </div>
 
@@ -892,7 +969,7 @@ async function signUp() {
     email, password: pwd,
     options: {
       data: { full_name: name, role },
-      emailRedirectTo: 'https://beromie.vercel.app'
+      emailRedirectTo: 'https://beromie.es'
     }
   });
   setModalLoading(false);
@@ -1354,8 +1431,8 @@ async function sendMessage() {
   const text = input.value.trim();
   if (!text) return;
 
-  // For now, send to a fixed Beromie support user ID (in production, use actual admin ID)
-  const BEROMIE_SUPPORT_ID = '00000000-0000-0000-0000-000000000000';
+  // ID real del admin Beromie (Pedro)
+  const BEROMIE_SUPPORT_ID = '08196e80-786f-4273-888a-a23f3233e710';
 
   const { error } = await sb.from('messages').insert({
     sender_id: currentUser.id,
