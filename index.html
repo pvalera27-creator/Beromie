@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Beromie — Habitaciones verificadas en Murcia</title>
-<meta name="description" content="Habitaciones para estudiantes en Murcia verificadas y gestionadas al 100%. Reserva tu habitación cerca de la UMU o UCAM con Beromie. Sin sorpresas, sin estrés.">
-<meta name="keywords" content="habitaciones murcia, alquiler habitaciones murcia, habitaciones estudiantes murcia, UMU, UCAM, beromie">
-<meta property="og:title" content="Beromie — Habitaciones verificadas en Murcia">
-<meta property="og:description" content="Habitaciones para estudiantes en Murcia gestionadas al 100%. Reserva online en minutos.">
+<title>Beromie — Habitaciones verificadas para estudiantes</title>
+<meta name="description" content="Habitaciones para estudiantes verificadas y gestionadas al 100%. Busca por ciudad, reserva online en minutos. Sin sorpresas, sin estrés.">
+<meta name="keywords" content="habitaciones estudiantes, alquiler habitaciones, piso estudiantes, beromie, habitaciones verificadas">
+<meta property="og:title" content="Beromie — Habitaciones verificadas para estudiantes">
+<meta property="og:description" content="Habitaciones gestionadas al 100%. Busca por ciudad y reserva online en minutos.">
 <meta property="og:url" content="https://beromie.vercel.app">
 <meta property="og:type" content="website">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -89,6 +89,14 @@ body { font-family: 'Outfit', sans-serif; background: var(--white); color: var(-
 .hstat-n { font-family: 'Syne', sans-serif; font-size: 25px; font-weight: 700; line-height: 1; }
 .hstat-n em { color: var(--pink); font-style: normal; }
 .hstat-l { font-size: 12px; color: var(--gray-400); margin-top: 3px; }
+
+/* Search city */
+.search-city-wrap { margin-bottom: 0; }
+.city-suggestions { position: absolute; top: calc(100% + 4px); left: 0; right: 0; background: var(--white); border: 1px solid var(--border-md); border-radius: var(--r-sm); box-shadow: var(--shadow-lg); z-index: 200; display: none; max-height: 200px; overflow-y: auto; }
+.city-suggestions.open { display: block; }
+.city-sug-item { padding: 10px 13px; font-size: 14px; cursor: pointer; transition: background var(--t); display: flex; align-items: center; gap: 8px; }
+.city-sug-item:hover { background: var(--gray-50); }
+.city-sug-item span { font-size: 11px; color: var(--gray-400); }
 
 /* Search card */
 .search-card { background: var(--white); border: 1px solid var(--border-md); border-radius: var(--r-lg); padding: 26px; box-shadow: var(--shadow-lg); }
@@ -363,8 +371,8 @@ tr:hover td { background: var(--gray-50); }
 <div class="screen active" id="screen-landing">
   <section class="hero">
     <div>
-      <div class="hero-tag"><div class="hero-tag-dot"></div><span>Murcia · Habitaciones verificadas</span></div>
-      <h1>Tu primera<br><span class="hl">habitación</span><br>en Murcia</h1>
+      <div class="hero-tag"><div class="hero-tag-dot"></div><span>España · Habitaciones verificadas</span></div>
+      <h1>Tu primera<br><span class="hl">habitación</span><br>donde estudias</h1>
       <p class="hero-sub">Habitaciones con el estándar Beromie. Gestionadas al 100%. Sin sorpresas, sin estrés.</p>
       <div class="hero-actions">
         <button class="btn-primary" onclick="scrollToRooms()">Buscar habitación →</button>
@@ -378,17 +386,14 @@ tr:hover td { background: var(--gray-50); }
     </div>
     <div class="search-card">
       <div class="search-card-ttl">Encuentra tu habitación</div>
-      <div class="sgrid">
-        <div class="sf"><label>Zona</label>
-          <select id="filterZone">
-            <option value="">Toda Murcia</option>
-            <option>La Flota</option>
-            <option>El Carmen</option>
-            <option>Espinardo</option>
-            <option>Centro</option>
-            <option>Vistabella</option>
-          </select>
+      <div class="search-city-wrap">
+        <div class="sf" style="grid-column:1/-1;position:relative">
+          <label>Ciudad o zona</label>
+          <input type="text" id="filterCity" placeholder="Ej: Murcia, Valencia, Madrid..." autocomplete="off" oninput="onCityInput(this.value)">
+          <div class="city-suggestions" id="citySuggestions"></div>
         </div>
+      </div>
+      <div class="sgrid" style="margin-top:11px">
         <div class="sf"><label>Entrada</label><input type="month" id="filterMonth" value="2025-09"></div>
         <div class="sf"><label>Precio máximo</label>
           <select id="filterPrice">
@@ -396,6 +401,8 @@ tr:hover td { background: var(--gray-50); }
             <option value="300">Hasta 300 €</option>
             <option value="350">Hasta 350 €</option>
             <option value="400">Hasta 400 €</option>
+            <option value="500">Hasta 500 €</option>
+            <option value="700">Hasta 700 €</option>
           </select>
         </div>
         <div class="sf"><label>Duración</label>
@@ -404,6 +411,13 @@ tr:hover td { background: var(--gray-50); }
             <option value="6">6 meses</option>
             <option value="4">4 meses</option>
             <option value="3">3 meses</option>
+          </select>
+        </div>
+        <div class="sf"><label>Tipo de baño</label>
+          <select id="filterBath">
+            <option value="">Cualquiera</option>
+            <option value="private">Baño propio</option>
+            <option value="shared">Compartido</option>
           </select>
         </div>
       </div>
@@ -593,9 +607,9 @@ tr:hover td { background: var(--gray-50); }
       <div class="room-form">
         <div class="form-grid-2" style="margin-bottom:12px">
           <div class="form-row"><label>Título</label><input type="text" id="nh-title" placeholder="Ej: Habitación luminosa con escritorio"></div>
-          <div class="form-row"><label>Zona</label>
-            <select id="nh-zone"><option>La Flota</option><option>El Carmen</option><option>Espinardo</option><option>Centro</option><option>Vistabella</option></select>
-          </div>
+          <div class="form-row"><label>Ciudad</label><input type="text" id="nh-city" placeholder="Ej: Murcia, Valencia, Madrid"></div>
+          <div class="form-row"><label>Provincia</label><input type="text" id="nh-province" placeholder="Ej: Murcia, Valencia, Madrid"></div>
+          <div class="form-row"><label>Zona / Barrio</label><input type="text" id="nh-zone" placeholder="Ej: La Flota, El Carmen, Russafa"></div>
           <div class="form-row"><label>Dirección</label><input type="text" id="nh-address" placeholder="Calle, número, piso"></div>
           <div class="form-row"><label>Precio (€/mes)</label><input type="number" id="nh-price" placeholder="320"></div>
           <div class="form-row"><label>Superficie (m²)</label><input type="number" id="nh-size" placeholder="14"></div>
@@ -949,18 +963,23 @@ function requireAuth(screen) {
 async function loadRooms() {
   let query = sb.from('rooms').select('*');
 
-  const zone  = document.getElementById('filterZone')?.value;
+  const city  = document.getElementById('filterCity')?.value.trim();
   const price = document.getElementById('filterPrice')?.value;
+  const bath  = document.getElementById('filterBath')?.value;
 
-  if (zone) query = query.eq('zone', zone);
+  if (city) {
+    // Buscar por ciudad, provincia o zona (ilike = case insensitive)
+    query = query.or(`city.ilike.%${city}%,province.ilike.%${city}%,zone.ilike.%${city}%`);
+  }
   if (price) query = query.lte('price', parseInt(price));
+  if (bath)  query = query.eq('bath_type', bath);
   if (activeFilter === 'available') query = query.eq('status', 'available');
-  if (activeFilter === 'private') query = query.eq('bath_type', 'private');
-  if (activeFilter === 'cheap') query = query.lte('price', 350);
-  if (activeFilter === 'umu') query = query.eq('near_umu', true);
+  if (activeFilter === 'private')   query = query.eq('bath_type', 'private');
+  if (activeFilter === 'cheap')     query = query.lte('price', 350);
+  if (activeFilter === 'umu')       query = query.eq('near_umu', true);
 
   const sort = document.getElementById('sortSel')?.value || 'newest';
-  if (sort === 'price_asc') query = query.order('price', { ascending: true });
+  if (sort === 'price_asc')  query = query.order('price', { ascending: true });
   else if (sort === 'price_desc') query = query.order('price', { ascending: false });
   else query = query.order('created_at', { ascending: false });
 
@@ -969,11 +988,45 @@ async function loadRooms() {
   allRooms = data || [];
   renderRooms(allRooms);
 
-  // Update hero stat
   const availableCount = allRooms.filter(r => r.status === 'available').length;
   document.getElementById('stat-rooms').innerHTML = `<em>${availableCount}</em>`;
-  document.getElementById('results-count').innerHTML = `<strong>${allRooms.length} habitaciones</strong> en Murcia`;
+  const cityTxt = city ? ` en <strong>${city}</strong>` : '';
+  document.getElementById('results-count').innerHTML = `<strong>${allRooms.length} habitaciones</strong>${cityTxt}`;
 }
+
+// ─── CITY AUTOCOMPLETE ────────────────────────────────
+async function onCityInput(val) {
+  const box = document.getElementById('citySuggestions');
+  if (!val || val.length < 2) { box.classList.remove('open'); return; }
+  // Buscar ciudades únicas en la BD
+  const { data } = await sb.from('rooms').select('city, province').ilike('city', `%${val}%`).limit(20);
+  if (!data?.length) { box.classList.remove('open'); return; }
+  // Deduplicar
+  const seen = new Set();
+  const items = data.filter(r => {
+    const key = (r.city + r.province).toLowerCase();
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+  box.innerHTML = items.map(r =>
+    `<div class="city-sug-item" onclick="selectCity('${r.city}')">📍 ${r.city} <span>${r.province || ''}</span></div>`
+  ).join('');
+  box.classList.add('open');
+}
+
+function selectCity(city) {
+  document.getElementById('filterCity').value = city;
+  document.getElementById('citySuggestions').classList.remove('open');
+  loadRooms();
+}
+
+// Cerrar sugerencias al clicar fuera
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('#filterCity') && !e.target.closest('#citySuggestions')) {
+    document.getElementById('citySuggestions')?.classList.remove('open');
+  }
+});
 
 function renderRooms(rooms) {
   const grid = document.getElementById('roomsGrid');
@@ -1000,7 +1053,7 @@ function renderRooms(rooms) {
     return `<div class="rcard" onclick="openRoom('${room.id}')" style="opacity:${room.status==='occupied'?0.6:1}">
       <div class="rthumb" style="background:${color}">${emoji}${badge}</div>
       <div class="rcbody">
-        <div class="rczone">${room.zone}</div>
+        <div class="rczone">${room.city || room.zone} ${room.zone && room.city ? '· ' + room.zone : ''}</div>
         <div class="rcname">${room.title}</div>
         <div class="rcpills">
           <span class="rcpill">${bath}</span>
@@ -1038,7 +1091,7 @@ function renderDetail(room) {
   document.getElementById('detailContent').innerHTML = `
     <div>
       <div class="gallery">🛏</div>
-      <div class="dzone">${room.zone} · Murcia</div>
+      <div class="dzone">${room.city || room.zone}${room.province && room.province !== room.city ? ' · ' + room.province : ''}</div>
       <div class="dtitle">${room.title}</div>
       <div class="dfeats">
         ${room.size_m2 ? `<div class="dfeat">📐 ${room.size_m2} m²</div>` : ''}
@@ -1584,34 +1637,36 @@ async function toggleRoomVerified(id, verified) {
 }
 
 async function createRoom() {
-  const title = document.getElementById('nh-title').value.trim();
-  const zone = document.getElementById('nh-zone').value;
-  const address = document.getElementById('nh-address').value.trim();
-  const price = parseFloat(document.getElementById('nh-price').value);
-  const size_m2 = parseFloat(document.getElementById('nh-size').value) || null;
-  const bath_type = document.getElementById('nh-bath').value;
-  const wifi_mbps = parseInt(document.getElementById('nh-wifi').value) || 100;
-  const status = document.getElementById('nh-status').value;
-  const description = document.getElementById('nh-desc').value.trim();
+  const title      = document.getElementById('nh-title').value.trim();
+  const city       = document.getElementById('nh-city').value.trim();
+  const province   = document.getElementById('nh-province').value.trim();
+  const zone       = document.getElementById('nh-zone').value.trim();
+  const address    = document.getElementById('nh-address').value.trim();
+  const price      = parseFloat(document.getElementById('nh-price').value);
+  const size_m2    = parseFloat(document.getElementById('nh-size').value) || null;
+  const bath_type  = document.getElementById('nh-bath').value;
+  const wifi_mbps  = parseInt(document.getElementById('nh-wifi').value) || 100;
+  const status     = document.getElementById('nh-status').value;
+  const description= document.getElementById('nh-desc').value.trim();
   const amenitiesRaw = document.getElementById('nh-amenities').value;
-  const amenities = amenitiesRaw.split(',').map(a => a.trim()).filter(Boolean);
-  const verified = document.getElementById('nh-verified').checked;
-  const near_umu = document.getElementById('nh-umu').checked;
-  const near_ucam = document.getElementById('nh-ucam').checked;
-  const ac = document.getElementById('nh-ac').checked;
+  const amenities  = amenitiesRaw.split(',').map(a => a.trim()).filter(Boolean);
+  const verified   = document.getElementById('nh-verified').checked;
+  const near_umu   = document.getElementById('nh-umu').checked;
+  const near_ucam  = document.getElementById('nh-ucam').checked;
+  const ac         = document.getElementById('nh-ac').checked;
 
   if (!title || !price) { toast('El título y el precio son obligatorios'); return; }
+  if (!city)            { toast('La ciudad es obligatoria'); return; }
 
   const { error } = await sb.from('rooms').insert({
-    title, zone, address, price, size_m2, bath_type, wifi_mbps,
+    title, city, province, zone, address, price, size_m2, bath_type, wifi_mbps,
     status, description, amenities, verified, near_umu, near_ucam, ac,
     owner_id: currentUser.id
   });
 
   if (error) { toast('Error: ' + error.message); return; }
   toast('✓ Habitación añadida correctamente');
-  // Limpiar formulario
-  ['nh-title','nh-address','nh-price','nh-size','nh-desc','nh-amenities'].forEach(id => document.getElementById(id).value = '');
+  ['nh-title','nh-city','nh-province','nh-zone','nh-address','nh-price','nh-size','nh-desc','nh-amenities'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('nh-verified').checked = false;
   document.getElementById('nh-umu').checked = false;
   document.getElementById('nh-ucam').checked = false;
