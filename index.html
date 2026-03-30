@@ -391,7 +391,7 @@ tr:hover td { background: var(--gray-50); }
   <div class="topbar-right" style="position:relative">
     <div class="bell" id="bellBtn">🔔<div class="bell-dot" id="bellDot"></div></div>
     <button class="btn-login" id="btnLogin" onclick="openModal()">Entrar</button>
-    <button class="pill" id="btnReservar" onclick="go('landing')">Ver habitaciones →</button>
+    <button class="pill" id="btnReservar" onclick="go('landing');setTimeout(scrollToRooms,100)">Ver habitaciones →</button>
     <div class="user-avatar" id="userAvatar" onclick="toggleUserMenu()"></div>
     <div class="user-menu" id="userMenu">
       <div class="user-menu-item" id="menuDashboard">📊 Mi panel</div>
@@ -416,7 +416,7 @@ tr:hover td { background: var(--gray-50); }
       <div class="hero-stats">
         <div><div class="hstat-n" id="stat-rooms"><em>—</em></div><div class="hstat-l">Habitaciones activas</div></div>
         <div><div class="hstat-n">100<em>%</em></div><div class="hstat-l">Verificadas</div></div>
-        <div><div class="hstat-n">4.9<em>★</em></div><div class="hstat-l">Valoración media</div></div>
+        <div><div class="hstat-n">24<em>h</em></div><div class="hstat-l">Respuesta garantizada</div></div>
       </div>
     </div>
     <div class="search-card">
@@ -713,7 +713,7 @@ tr:hover td { background: var(--gray-50); }
     <h2>4. Responsabilidades</h2>
     <p>Beromie actúa como gestor de las habitaciones verificadas publicadas en la plataforma. No somos responsables de habitaciones ofertadas por terceros fuera de nuestra plataforma.</p>
     <h2>5. Contacto</h2>
-    <p>Para cualquier consulta escríbenos a <a href="mailto:hola@beromie.es" style="color:var(--pink)">hola@beromie.es</a></p>
+    <p>Para cualquier consulta escríbenos a <a href="/cdn-cgi/l/email-protection#355d5a5954755750475a585c501b5046" style="color:var(--pink)"><span class="__cf_email__" data-cfemail="543c3b3835143631263b393d317a3127">[email&#160;protected]</span></a></p>
   </div>
 </div>
 
@@ -724,7 +724,7 @@ tr:hover td { background: var(--gray-50); }
     <h1>Política de privacidad</h1>
     <p class="legal-date">Última actualización: marzo 2025</p>
     <h2>1. Responsable del tratamiento</h2>
-    <p>Beromie, con email de contacto hola@beromie.es, es responsable del tratamiento de tus datos personales.</p>
+    <p>Beromie, con email de contacto <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="c3abacafa283a1a6b1acaeaaa6eda6b0">[email&#160;protected]</a>, es responsable del tratamiento de tus datos personales.</p>
     <h2>2. Datos que recogemos</h2>
     <ul>
       <li>Nombre completo y email para crear tu cuenta</li>
@@ -734,7 +734,7 @@ tr:hover td { background: var(--gray-50); }
     <h2>3. Finalidad</h2>
     <p>Usamos tus datos para gestionar tu reserva, enviarte comunicaciones relacionadas con tu habitación y cumplir con obligaciones legales.</p>
     <h2>4. Tus derechos</h2>
-    <p>Puedes ejercer tus derechos de acceso, rectificación, supresión y portabilidad escribiendo a <a href="mailto:hola@beromie.es" style="color:var(--pink)">hola@beromie.es</a></p>
+    <p>Puedes ejercer tus derechos de acceso, rectificación, supresión y portabilidad escribiendo a <a href="/cdn-cgi/l/email-protection#e880878489a88a8d9a8785818dc68d9b" style="color:var(--pink)"><span class="__cf_email__" data-cfemail="01696e6d60416364736e6c68642f6472">[email&#160;protected]</span></a></p>
     <h2>5. Cookies</h2>
     <p>Usamos cookies técnicas necesarias para el funcionamiento de la plataforma y cookies de análisis para mejorar el servicio.</p>
   </div>
@@ -796,7 +796,7 @@ tr:hover td { background: var(--gray-50); }
 
 <div class="toast" id="toast"></div>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 // ══════════════════════════════════════════════════════
 //  ⚠️  CONFIGURACIÓN — reemplaza con tus credenciales
 //  Supabase > Settings > API
@@ -1204,7 +1204,7 @@ function renderDetail(room) {
           <div class="brow tot"><span>Total hoy</span><span>${total} €</span></div>
         </div>
         <button class="book-cta" onclick="createBooking('${room.id}','${room.price}')">Reservar ahora →</button>
-        <p class="book-note">Pago seguro · Stripe · Sin compromiso hasta firmar</p>
+        <p class="book-note">Sin compromiso hasta firmar el contrato · Te contactamos en 24h</p>
       </div>
     </div>`;
 }
@@ -1815,20 +1815,4 @@ async function loadAdminIncidents() {
 async function updateIncidentStatus(id, status) {
   const updates = { status };
   if (status === 'resolved') updates.resolved_at = new Date().toISOString();
-  await sb.from('incidents').update(updates).eq('id', id);
-  toast('Incidencia actualizada');
-  loadAdminIncidents();
-}
-
-// ─── TOAST ────────────────────────────────────────────
-let toastTimer;
-function toast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.classList.remove('show'), 3500);
-}
-</script>
-</body>
-</html>
+  await sb.from('incidents').update(updates).eq('i
