@@ -967,23 +967,44 @@ function showPreReservaBanner(booking, room) {
 
 async function redirectToCheckout(bookingId) {
   try {
-    const { data: { session } } = await sb.auth.getSession();
+    // Refrescar sesion antes de llamar a Stripe para evitar token expirado (401)
+    const { data: refreshData } = await sb.auth.refreshSession();
+    const session = refreshData?.session;
     const token = session?.access_token;
-    if (!token) { openModal(); return; }
+
+    if (!token) {
+      // Si no hay sesion activa, pedir login de nuevo
+      toast('Sesion expirada. Inicia sesion para completar el pago.');
+      setTimeout(() => openModal(), 1000);
+      return;
+    }
+
+    const btn = event?.target;
+    if (btn && btn.tagName === 'BUTTON') { btn.textContent = 'Preparando pago...'; btn.disabled = true; }
+
     const res = await fetch('https://zvjgxmdstaxwnlxqgsyx.supabase.co/functions/v1/create-checkout-session', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
       body: JSON.stringify({ booking_id: bookingId }),
     });
+
     const data = await res.json();
+
     if (!res.ok || !data.url) {
-      toast('Pago no disponible todavia - Tu reserva esta guardada, te contactamos pronto');
+      console.error('Checkout error:', res.status, data);
+      const errMsg = res.status === 401
+        ? 'Sesion expirada. Inicia sesion e intentalo de nuevo.'
+        : 'Error al iniciar el pago. Tu reserva esta guardada, te contactaremos pronto.';
+      toast(errMsg);
+      if (btn && btn.tagName === 'BUTTON') { btn.textContent = 'Completar pago'; btn.disabled = false; }
       return;
     }
+
     window.location.href = data.url;
+
   } catch (err) {
     toast('Error de conexion. Tu reserva esta guardada.');
-    console.error(err);
+    console.error('redirectToCheckout error:', err);
   }
 }
 
