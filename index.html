@@ -1010,54 +1010,68 @@ function showPreReservaBanner(booking, room) {
 }
 
 async function redirectToCheckout(bookingId, btnEl) {
-  // btnEl es opcional - se pasa desde onclick="redirectToCheckout(id, this)"
   if (btnEl) { btnEl.textContent = 'Preparando pago...'; btnEl.disabled = true; }
 
-  try {
-    // 1. Intentar refrescar sesion primero
-    let token = null;
-    const { data: refreshData } = await sb.auth.refreshSession();
-    token = refreshData?.session?.access_token;
+  const resetBtn = () => { if (btnEl) { btnEl.textContent = 'Completar pago'; btnEl.disabled = false; } };
 
-    // 2. Si no hay token tras refresh, intentar getSession
-    if (!token) {
-      const { data: { session } } = await sb.auth.getSession();
-      token = session?.access_token;
-    }
+  try {
+    // Obtener token de sesion directamente (sin refresh que puede colgar)
+    const { data: { session }, error: sessionErr } = await sb.auth.getSession();
+    const token = session?.access_token;
 
     if (!token) {
       toast('Sesion expirada. Inicia sesion para completar el pago.');
-      if (btnEl) { btnEl.textContent = 'Completar pago'; btnEl.disabled = false; }
+      resetBtn();
       setTimeout(() => openModal(), 800);
       return;
     }
 
-    const res = await fetch('https://zvjgxmdstaxwnlxqgsyx.supabase.co/functions/v1/create-checkout-session', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-      body: JSON.stringify({ booking_id: bookingId }),
-    });
+    // Llamar a la Edge Function con timeout de 30 segundos
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000);
 
-    const data = await res.json();
+    let res;
+    try {
+      res = await fetch('https://zvjgxmdstaxwnlxqgsyx.supabase.co/functions/v1/create-checkout-session', {
+        method: 'POST',
+        signal: controller.signal,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + token,
+          'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp2amd4bWRzdGF4d25seHFnc3l4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ1NjM3NTMsImV4cCI6MjA5MDEzOTc1M30.zvn4vOlmobECsMUeAxm4LH1UzaNmyJWJqBkignSVa6E',
+        },
+        body: JSON.stringify({ booking_id: bookingId }),
+      });
+    } finally {
+      clearTimeout(timeoutId);
+    }
+
+    let data = {};
+    try { data = await res.json(); } catch(e) { data = {}; }
+
+    console.log('Checkout response:', res.status, data);
 
     if (!res.ok || !data.url) {
-      console.error('Checkout error:', res.status, data);
-      const errMsg = res.status === 401
-        ? 'Sesion expirada. Inicia sesion e intentalo de nuevo.'
-        : res.status === 503
-        ? 'Pagos en configuracion. Tu reserva esta guardada, te contactaremos pronto.'
-        : (data.error || 'Error al iniciar el pago. Tu reserva esta guardada.');
+      let errMsg = 'Error al iniciar el pago. Tu reserva esta guardada.';
+      if (res.status === 401) errMsg = 'Sesion expirada. Recarga la pagina y vuelve a intentarlo.';
+      else if (res.status === 503 || (data.error && data.error.includes('stripe'))) errMsg = 'Pagos en configuracion. Te contactaremos para completar la reserva.';
+      else if (data.error) errMsg = data.error;
       toast(errMsg);
-      if (btnEl) { btnEl.textContent = 'Completar pago'; btnEl.disabled = false; }
+      resetBtn();
       return;
     }
 
+    // Exito: redirigir a Stripe Checkout
     window.location.href = data.url;
 
   } catch (err) {
-    toast('Error de conexion. Tu reserva esta guardada.');
-    console.error('redirectToCheckout error:', err);
-    if (btnEl) { btnEl.textContent = 'Completar pago'; btnEl.disabled = false; }
+    if (err.name === 'AbortError') {
+      toast('La conexion ha tardado demasiado. Intentalo de nuevo.');
+    } else {
+      toast('Error de conexion. Tu reserva esta guardada.');
+    }
+    console.error('redirectToCheckout:', err);
+    resetBtn();
   }
 }
 
