@@ -415,6 +415,19 @@ tr:hover td{background:var(--gray-50)}
       <div class="empty-state" style="grid-column:1/-1"><div class="spinner" style="margin:0 auto"></div></div>
     </div>
   </div>
+
+  <!-- FOOTER -->
+  <footer class="footer-bar">
+    <div class="footer-logo">Be<em>romie</em></div>
+    <div class="footer-links">
+      <button class="footer-link" onclick="go('contact')">Contacto</button>
+      <button class="footer-link" onclick="go('legal')">Aviso legal</button>
+      <button class="footer-link" onclick="go('privacy')">Privacidad</button>
+      <button class="footer-link" onclick="go('terms')">Terminos de uso</button>
+      <button class="footer-link" onclick="go('cookies')">Politica de cookies</button>
+    </div>
+    <div class="footer-copy">&copy; 2025 Beromie &middot; hola@beromie.es &middot; Murcia, Espa&ntilde;a</div>
+  </footer>
 </div>
 
 <div class="screen" id="screen-detail">
@@ -586,41 +599,311 @@ tr:hover td{background:var(--gray-50)}
 
 <div class="screen" id="screen-terms">
   <div class="legal-screen">
-    <button class="back-btn" onclick="go('landing')">Volver</button>
+    <button class="back-btn" onclick="go('landing')">&larr; Volver</button>
     <h1>Terminos de uso</h1>
-    <p class="legal-date">Ultima actualizacion: marzo 2025</p>
-    <h2>1. Objeto</h2>
-    <p>Beromie es una plataforma de intermediacion y gestion de alquiler de habitaciones para estudiantes. Al usar Beromie aceptas estos terminos.</p>
-    <h2>2. Proceso de reserva</h2>
-    <p>La reserva online supone una solicitud, no un contrato vinculante. El contrato de arrendamiento se firma por separado entre Beromie y el inquilino una vez confirmada la disponibilidad.</p>
-    <h2>3. Comision y honorarios</h2>
-    <p>Beromie cobra un fee de entrada de 59 EUR al formalizar el contrato, y gestiona la vivienda percibiendo una comision del 17% de la renta mensual del propietario.</p>
-    <h2>4. Responsabilidades</h2>
-    <p>Beromie actua como gestor de las habitaciones verificadas publicadas en la plataforma. No somos responsables de habitaciones ofertadas por terceros fuera de nuestra plataforma.</p>
-    <h2>5. Contacto</h2>
-    <p>Para cualquier consulta escribenos a <a href="mailto:hola@beromie.es" style="color:var(--pink)">hola@beromie.es</a></p>
+    <p class="legal-date">Ultima actualizacion: abril 2025 &middot; Version 1.0</p>
+    <div class="highlight-box"><p>Al acceder y usar Beromie aceptas estos terminos en su totalidad. Si no estas de acuerdo, no debes usar la plataforma.</p></div>
+
+    <h2>1. Identificacion del titular</h2>
+    <p>Beromie es una plataforma de intermediacion y gestion de alquiler de habitaciones operada desde Murcia, Espana. Email de contacto: <a href="mailto:hola@beromie.es">hola@beromie.es</a></p>
+
+    <h2>2. Objeto del servicio</h2>
+    <p>Beromie facilita la conexion entre personas que buscan alojamiento en habitaciones (inquilinos) y las habitaciones gestionadas por Beromie. La plataforma permite buscar, consultar y solicitar reservas de habitaciones verificadas.</p>
+
+    <h2>3. Proceso de reserva</h2>
+    <p>La solicitud de reserva a traves de la plataforma constituye una <strong>pre-reserva no vinculante</strong>. La reserva solo queda formalizada cuando:</p>
+    <ul>
+      <li>Beromie confirma la disponibilidad de la habitacion</li>
+      <li>El inquilino completa el pago del fee de entrada (59 EUR)</li>
+      <li>Se firma el contrato de arrendamiento entre las partes</li>
+    </ul>
+    <p>Hasta ese momento, Beromie no garantiza la disponibilidad ni se hace responsable de reservas no confirmadas.</p>
+
+    <h2>4. Honorarios y pagos</h2>
+    <p><strong>Fee de entrada:</strong> 59 EUR pagadero una sola vez al formalizar la reserva. Este importe cubre la gestion administrativa, verificacion de identidad y kit de bienvenida. No es reembolsable salvo que Beromie cancele la reserva por causas imputables a su gestion.</p>
+    <p><strong>Renta mensual:</strong> Se establece en el contrato de arrendamiento y se abona mensualmente segun los terminos acordados.</p>
+    <p>Los pagos se procesan a traves de Stripe, Inc. Beromie no almacena datos de tarjetas bancarias.</p>
+
+    <h2>5. Obligaciones del inquilino</h2>
+    <ul>
+      <li>Proporcionar informacion veraz en el registro y en la solicitud de reserva</li>
+      <li>Mantener la habitacion en buen estado y comunicar cualquier incidencia</li>
+      <li>Cumplir las normas de convivencia del inmueble</li>
+      <li>Abonar la renta en los plazos acordados</li>
+      <li>No subarrendar ni ceder el uso de la habitacion a terceros</li>
+    </ul>
+
+    <h2>6. Cancelaciones y desistimiento</h2>
+    <p>Una vez firmado el contrato, las condiciones de cancelacion se rigen por la Ley 29/1994 de Arrendamientos Urbanos (LAU) y por las clausulas especificas del contrato de arrendamiento firmado.</p>
+    <p>El inquilino dispone de 14 dias naturales desde la formalizacion para ejercer el derecho de desistimiento del servicio de intermediacion (no del contrato de arrendamiento), conforme al Real Decreto Legislativo 1/2007.</p>
+
+    <h2>7. Responsabilidad</h2>
+    <p>Beromie actua como gestor de las habitaciones verificadas publicadas en la plataforma. No nos hacemos responsables de:</p>
+    <ul>
+      <li>Habitaciones o alojamientos ofertados por terceros ajenos a Beromie</li>
+      <li>Danos causados por causas de fuerza mayor</li>
+      <li>Uso incorrecto de la plataforma por parte del usuario</li>
+    </ul>
+
+    <h2>8. Propiedad intelectual</h2>
+    <p>Todos los contenidos de la plataforma (textos, graficos, logos, diseno) son propiedad de Beromie o de sus licenciantes y estan protegidos por la legislacion de propiedad intelectual. Queda prohibida su reproduccion sin autorizacion expresa.</p>
+
+    <h2>9. Modificaciones</h2>
+    <p>Beromie se reserva el derecho a modificar estos terminos en cualquier momento. Los cambios se notificaran por email con al menos 15 dias de antelacion para usuarios registrados.</p>
+
+    <h2>10. Legislacion aplicable</h2>
+    <p>Estos terminos se rigen por la legislacion espanola. Para cualquier controversia, las partes se someten a los juzgados y tribunales de Murcia, sin perjuicio del fuero que corresponda al consumidor.</p>
+
+    <h2>11. Contacto</h2>
+    <p>Para cualquier consulta sobre estos terminos: <a href="mailto:hola@beromie.es">hola@beromie.es</a> o a traves del <button onclick="go('contact')" style="background:none;border:none;color:var(--pink);cursor:pointer;font-size:15px;font-family:inherit;padding:0">formulario de contacto</button>.</p>
   </div>
 </div>
 
 <div class="screen" id="screen-privacy">
   <div class="legal-screen">
-    <button class="back-btn" onclick="go('landing')">Volver</button>
+    <button class="back-btn" onclick="go('landing')">&larr; Volver</button>
     <h1>Politica de privacidad</h1>
-    <p class="legal-date">Ultima actualizacion: marzo 2025</p>
+    <p class="legal-date">Ultima actualizacion: abril 2025 &middot; Conforme al RGPD (UE) 2016/679 y LOPDGDD</p>
+    <div class="highlight-box"><p>Tu privacidad es importante para nosotros. Esta politica explica que datos recogemos, como los usamos y cuales son tus derechos.</p></div>
+
     <h2>1. Responsable del tratamiento</h2>
-    <p>Beromie, con email de contacto hola@beromie.es, es responsable del tratamiento de tus datos personales.</p>
-    <h2>2. Datos que recogemos</h2>
+    <p><strong>Identidad:</strong> Beromie<br>
+    <strong>Actividad:</strong> Plataforma de gestion de alquiler de habitaciones<br>
+    <strong>Domicilio:</strong> Murcia, Espana<br>
+    <strong>Email:</strong> <a href="mailto:hola@beromie.es">hola@beromie.es</a></p>
+
+    <h2>2. Datos que tratamos</h2>
+    <p><strong>Datos de cuenta:</strong> nombre completo, direccion de correo electronico y contrasena (almacenada de forma cifrada).</p>
+    <p><strong>Datos de identidad:</strong> DNI, NIE o pasaporte, necesarios para la firma del contrato de arrendamiento.</p>
+    <p><strong>Datos de contacto:</strong> telefono (opcional) y universidad o empresa.</p>
+    <p><strong>Datos de uso:</strong> habitaciones consultadas, reservas realizadas, incidencias reportadas y mensajes enviados a traves de la plataforma.</p>
+    <p><strong>Datos de pago:</strong> Beromie NO almacena datos de tarjetas bancarias. Los pagos se procesan directamente por Stripe, Inc. bajo su propia politica de privacidad.</p>
+    <p><strong>Datos tecnicos:</strong> direccion IP, tipo de navegador y dispositivo para la seguridad de la plataforma.</p>
+
+    <h2>3. Finalidad y base juridica del tratamiento</h2>
     <ul>
-      <li>Nombre completo y email para crear tu cuenta</li>
-      <li>DNI/NIE para verificar tu identidad al firmar el contrato</li>
-      <li>Telefono de contacto (opcional)</li>
+      <li><strong>Gestion de cuenta y reservas</strong> &mdash; Ejecucion del contrato (Art. 6.1.b RGPD)</li>
+      <li><strong>Verificacion de identidad</strong> &mdash; Cumplimiento de obligacion legal (Art. 6.1.c RGPD)</li>
+      <li><strong>Comunicaciones sobre tu habitacion</strong> &mdash; Ejecucion del contrato (Art. 6.1.b RGPD)</li>
+      <li><strong>Mejora del servicio y analisis</strong> &mdash; Interes legitimo (Art. 6.1.f RGPD)</li>
+      <li><strong>Comunicaciones comerciales</strong> &mdash; Consentimiento (Art. 6.1.a RGPD), revocable en cualquier momento</li>
     </ul>
-    <h2>3. Finalidad</h2>
-    <p>Usamos tus datos para gestionar tu reserva, enviarte comunicaciones relacionadas con tu habitacion y cumplir con obligaciones legales.</p>
-    <h2>4. Tus derechos</h2>
-    <p>Puedes ejercer tus derechos de acceso, rectificacion, supresion y portabilidad escribiendo a <a href="mailto:hola@beromie.es" style="color:var(--pink)">hola@beromie.es</a></p>
-    <h2>5. Cookies</h2>
-    <p>Usamos cookies tecnicas necesarias para el funcionamiento de la plataforma y cookies de analisis para mejorar el servicio.</p>
+
+    <h2>4. Conservacion de los datos</h2>
+    <p>Conservamos tus datos durante el tiempo necesario para la prestacion del servicio y durante los plazos legales de conservacion aplicables (generalmente 5 anos para documentacion contractual y 4 anos para obligaciones fiscales).</p>
+    <p>Cuando solicites la supresion de tu cuenta, eliminaremos tus datos personales en un plazo maximo de 30 dias, salvo que debamos conservarlos por obligacion legal.</p>
+
+    <h2>5. Destinatarios y transferencias internacionales</h2>
+    <p>Tus datos pueden ser compartidos con:</p>
+    <ul>
+      <li><strong>Supabase, Inc.</strong> (EEUU) &mdash; Proveedor de base de datos y autenticacion. Transferencia cubierta por Clausulas Contractuales Tipo de la UE.</li>
+      <li><strong>Stripe, Inc.</strong> (EEUU) &mdash; Procesador de pagos. Adherido al Marco de Privacidad de Datos UE-EEUU.</li>
+      <li><strong>Resend, Inc.</strong> (EEUU) &mdash; Proveedor de email transaccional. Transferencia cubierta por Clausulas Contractuales Tipo.</li>
+    </ul>
+    <p>No vendemos ni cedemos tus datos a terceros con fines publicitarios.</p>
+
+    <h2>6. Tus derechos</h2>
+    <p>Conforme al RGPD tienes derecho a:</p>
+    <ul>
+      <li><strong>Acceso:</strong> conocer que datos tratamos sobre ti</li>
+      <li><strong>Rectificacion:</strong> corregir datos inexactos o incompletos</li>
+      <li><strong>Supresion:</strong> solicitar la eliminacion de tus datos («derecho al olvido»)</li>
+      <li><strong>Limitacion:</strong> restringir el tratamiento en determinadas circunstancias</li>
+      <li><strong>Portabilidad:</strong> recibir tus datos en formato estructurado</li>
+      <li><strong>Oposicion:</strong> oponerte al tratamiento basado en interes legitimo</li>
+      <li><strong>Revocacion del consentimiento:</strong> en cualquier momento, sin efecto retroactivo</li>
+    </ul>
+    <p>Para ejercer cualquier derecho, escribe a <a href="mailto:hola@beromie.es">hola@beromie.es</a> indicando tu solicitud y adjuntando copia de tu documento de identidad. Responderemos en un plazo maximo de 30 dias.</p>
+    <p>Si consideras que el tratamiento no es conforme, puedes presentar una reclamacion ante la <strong>Agencia Espanola de Proteccion de Datos</strong> (AEPD) en <a href="https://www.aepd.es" target="_blank">www.aepd.es</a>.</p>
+
+    <h2>7. Seguridad</h2>
+    <p>Aplicamos medidas tecnicas y organizativas apropiadas para proteger tus datos: cifrado en transito (HTTPS/TLS), cifrado en reposo, control de acceso por roles y copias de seguridad diarias en servidores ubicados en la Union Europea (Frankfurt, Alemania).</p>
+
+    <h2>8. Cookies</h2>
+    <p>Consulta nuestra <button onclick="go('cookies')" style="background:none;border:none;color:var(--pink);cursor:pointer;font-size:15px;font-family:inherit;padding:0">Politica de cookies</button> para informacion detallada.</p>
+
+    <h2>9. Contacto y DPD</h2>
+    <p>Para cualquier consulta sobre privacidad: <a href="mailto:hola@beromie.es">hola@beromie.es</a></p>
+  </div>
+</div>
+
+<!-- AVISO LEGAL -->
+<div class="screen" id="screen-legal">
+  <div class="legal-screen">
+    <button class="back-btn" onclick="go('landing')">&larr; Volver</button>
+    <h1>Aviso legal</h1>
+    <p class="legal-date">Ultima actualizacion: abril 2025</p>
+
+    <h2>1. Titular del sitio web</h2>
+    <p><strong>Denominacion:</strong> Beromie<br>
+    <strong>Actividad:</strong> Plataforma de intermediacion y gestion de alquiler de habitaciones<br>
+    <strong>Domicilio social:</strong> Murcia, Espana<br>
+    <strong>Email:</strong> <a href="mailto:hola@beromie.es">hola@beromie.es</a><br>
+    <strong>Sitio web:</strong> https://beromie.es</p>
+
+    <h2>2. Objeto y ambito de aplicacion</h2>
+    <p>El presente Aviso Legal regula el acceso y uso del sitio web beromie.es y de la aplicacion web disponible en app.beromie.es (en adelante, «la Plataforma»), de conformidad con la Ley 34/2002, de 11 de julio, de Servicios de la Sociedad de la Informacion y de Comercio Electronico (LSSI-CE).</p>
+
+    <h2>3. Condiciones de acceso y uso</h2>
+    <p>El acceso a la Plataforma es libre y gratuito, si bien determinadas funcionalidades requieren registro previo. El usuario se compromete a hacer un uso licito de la Plataforma, conforme a la ley, la moral, el orden publico y estos terminos.</p>
+    <p>Queda expresamente prohibido:</p>
+    <ul>
+      <li>El uso de la Plataforma con fines fraudulentos o ilicitos</li>
+      <li>La reproduccion, distribucion o modificacion de los contenidos sin autorizacion</li>
+      <li>La introduccion de virus, malware o cualquier codigo danino</li>
+      <li>La realizacion de actos que puedan daniar, inutilizar o sobrecargar la Plataforma</li>
+    </ul>
+
+    <h2>4. Propiedad intelectual e industrial</h2>
+    <p>Todos los contenidos de la Plataforma &mdash;incluyendo, sin limitacion, textos, graficos, logotipos, iconos, imagenes, diseno grafico, codigo fuente y software&mdash; son propiedad de Beromie o de sus licenciantes y estan protegidos por las leyes espanolas e internacionales de propiedad intelectual e industrial.</p>
+    <p>Se autoriza la visualizacion y descarga temporal de los contenidos para uso personal y privado, sin animo de lucro, siempre que se respeten los avisos de propiedad intelectual. Cualquier otro uso requiere autorizacion previa por escrito.</p>
+
+    <h2>5. Exclusion de responsabilidad</h2>
+    <p>Beromie no garantiza la disponibilidad continua e ininterrumpida de la Plataforma y no se responsabiliza de los danos que puedan derivarse de interrupciones, errores tecnicos o accesos no autorizados ajenos a su control.</p>
+    <p>Los enlaces a sitios web de terceros se ofrecen por conveniencia; Beromie no controla ni se responsabiliza de sus contenidos.</p>
+
+    <h2>6. Legislacion aplicable y jurisdiccion</h2>
+    <p>Este Aviso Legal se rige por la legislacion espanola. Para la resolucion de cualquier conflicto derivado del acceso o uso de la Plataforma, las partes se someten a los Juzgados y Tribunales de Murcia, sin perjuicio del fuero que corresponda al consumidor conforme a la normativa vigente.</p>
+
+    <h2>7. Modificaciones</h2>
+    <p>Beromie se reserva el derecho de modificar este Aviso Legal en cualquier momento. La version actualizada estara siempre disponible en esta pagina.</p>
+  </div>
+</div>
+
+<!-- POLITICA DE COOKIES -->
+<div class="screen" id="screen-cookies">
+  <div class="legal-screen">
+    <button class="back-btn" onclick="go('landing')">&larr; Volver</button>
+    <h1>Politica de cookies</h1>
+    <p class="legal-date">Ultima actualizacion: abril 2025 &middot; Conforme al RGPD y LSSI-CE</p>
+    <div class="highlight-box"><p>Usamos cookies tecnicas esenciales para que la plataforma funcione. Puedes aceptar o rechazar las cookies analiticas en cualquier momento.</p></div>
+
+    <h2>1. Que son las cookies</h2>
+    <p>Las cookies son pequenos archivos de texto que los sitios web guardan en tu navegador o dispositivo cuando los visitas. Permiten que el sitio recuerde tus preferencias y mejoren tu experiencia de uso.</p>
+
+    <h2>2. Cookies que utilizamos</h2>
+    <p><strong>Cookies tecnicas esenciales (no requieren consentimiento):</strong></p>
+    <ul>
+      <li><strong>sb-auth-token</strong> &mdash; Gestion de la sesion autenticada. Caduca al cerrar sesion o en 7 dias. Emisor: Supabase / beromie.es</li>
+      <li><strong>beromie-cookies</strong> &mdash; Recuerda tu preferencia sobre el banner de cookies. Caduca en 365 dias. Emisor: beromie.es</li>
+    </ul>
+    <p><strong>Cookies analiticas (requieren consentimiento):</strong></p>
+    <ul>
+      <li>Actualmente no utilizamos cookies analiticas de terceros (Google Analytics, etc.). En caso de incorporarlas en el futuro, lo comunicaremos y solicitaremos tu consentimiento.</li>
+    </ul>
+    <p><strong>Cookies de terceros:</strong></p>
+    <ul>
+      <li><strong>Stripe</strong> &mdash; Durante el proceso de pago, Stripe puede establecer cookies para la prevencion del fraude y la seguridad de las transacciones. Consulta la <a href="https://stripe.com/es/privacy" target="_blank">politica de privacidad de Stripe</a>.</li>
+    </ul>
+
+    <h2>3. Como gestionar las cookies</h2>
+    <p>Puedes controlar y eliminar las cookies desde la configuracion de tu navegador:</p>
+    <ul>
+      <li><a href="https://support.google.com/chrome/answer/95647" target="_blank">Google Chrome</a></li>
+      <li><a href="https://support.mozilla.org/es/kb/habilitar-y-deshabilitar-cookies-sitios-web-rastrear-preferencias" target="_blank">Mozilla Firefox</a></li>
+      <li><a href="https://support.apple.com/es-es/guide/safari/sfri11471/mac" target="_blank">Safari</a></li>
+      <li><a href="https://support.microsoft.com/es-es/microsoft-edge/eliminar-las-cookies-en-microsoft-edge-63947406-40ac-c3b8-57b9-2a946a29ae09" target="_blank">Microsoft Edge</a></li>
+    </ul>
+    <p>Ten en cuenta que deshabilitar las cookies tecnicas puede afectar al funcionamiento de la plataforma (por ejemplo, no podras mantener la sesion iniciada).</p>
+
+    <h2>4. Actualizacion de preferencias</h2>
+    <p>Puedes cambiar tus preferencias de cookies en cualquier momento pulsando el siguiente boton:</p>
+    <button onclick="localStorage.removeItem('beromie-cookies'); document.getElementById('cookieBanner').style.display='flex'; go('landing');" style="margin-top:8px;padding:10px 20px;border-radius:99px;background:var(--pink);color:#fff;border:none;cursor:pointer;font-size:14px;font-weight:600;font-family:'Outfit',sans-serif">Gestionar preferencias de cookies</button>
+
+    <h2>5. Mas informacion</h2>
+    <p>Para mas informacion consulta nuestra <button onclick="go('privacy')" style="background:none;border:none;color:var(--pink);cursor:pointer;font-size:15px;font-family:inherit;padding:0">Politica de privacidad</button> o escribe a <a href="mailto:hola@beromie.es">hola@beromie.es</a></p>
+  </div>
+</div>
+
+<!-- CONTACTO -->
+<div class="screen" id="screen-contact">
+  <div class="legal-screen" style="max-width:900px">
+    <button class="back-btn" onclick="go('landing')">&larr; Volver</button>
+    <h1>Contacto</h1>
+    <p class="legal-date">Respondemos en menos de 24 horas en dias laborables</p>
+
+    <div class="contact-grid">
+      <div>
+        <form class="contact-form" onsubmit="sendContactForm(event)">
+          <div class="contact-field">
+            <label>Nombre completo *</label>
+            <input type="text" id="cf-name" placeholder="Tu nombre y apellidos" required>
+          </div>
+          <div class="contact-field">
+            <label>Email *</label>
+            <input type="email" id="cf-email" placeholder="tu@email.com" required>
+          </div>
+          <div class="contact-field">
+            <label>Asunto *</label>
+            <select id="cf-subject" required>
+              <option value="">Selecciona un asunto...</option>
+              <option value="reserva">Consulta sobre reserva</option>
+              <option value="habitacion">Informacion sobre habitacion</option>
+              <option value="pago">Problema con un pago</option>
+              <option value="contrato">Consulta sobre contrato</option>
+              <option value="incidencia">Reportar una incidencia</option>
+              <option value="privacidad">Ejercicio de derechos RGPD</option>
+              <option value="propietario">Soy propietario y quiero colaborar</option>
+              <option value="otro">Otro</option>
+            </select>
+          </div>
+          <div class="contact-field">
+            <label>Mensaje *</label>
+            <textarea id="cf-message" placeholder="Describe tu consulta con el mayor detalle posible..." required></textarea>
+          </div>
+          <div style="font-size:12px;color:var(--gray-400);line-height:1.6">
+            Al enviar este formulario aceptas nuestra
+            <button onclick="go('privacy')" type="button" style="background:none;border:none;color:var(--pink);cursor:pointer;font-size:12px;font-family:inherit;padding:0">Politica de privacidad</button>.
+            Tus datos se usaran unicamente para responder a tu consulta.
+          </div>
+          <button type="submit" class="contact-submit" id="cf-submit">Enviar mensaje</button>
+          <div class="contact-success" id="cf-success">
+            &#10003; Mensaje enviado correctamente. Te responderemos en menos de 24 horas.
+          </div>
+        </form>
+      </div>
+      <div>
+        <div class="contact-info-card">
+          <div class="contact-info-item">
+            <div class="contact-info-icon">&#9993;</div>
+            <div>
+              <div class="contact-info-label">Email</div>
+              <div class="contact-info-val"><a href="mailto:hola@beromie.es" style="color:var(--pink)">hola@beromie.es</a></div>
+            </div>
+          </div>
+          <div class="contact-info-item">
+            <div class="contact-info-icon">&#128205;</div>
+            <div>
+              <div class="contact-info-label">Ubicacion</div>
+              <div class="contact-info-val">Murcia, Espana</div>
+            </div>
+          </div>
+          <div class="contact-info-item">
+            <div class="contact-info-icon">&#128336;</div>
+            <div>
+              <div class="contact-info-label">Horario de atencion</div>
+              <div class="contact-info-val">Lun&ndash;Vie: 9:00&ndash;19:00<br>Sat: 10:00&ndash;14:00</div>
+            </div>
+          </div>
+          <div class="contact-info-item">
+            <div class="contact-info-icon">&#128274;</div>
+            <div>
+              <div class="contact-info-label">Derechos RGPD</div>
+              <div class="contact-info-val" style="font-size:13px">Para ejercer tus derechos de acceso, rectificacion, supresion u oposicion escribe a <a href="mailto:hola@beromie.es" style="color:var(--pink)">hola@beromie.es</a></div>
+            </div>
+          </div>
+          <div style="margin-top:8px;padding-top:16px;border-top:1px solid var(--border)">
+            <div class="contact-info-label" style="margin-bottom:10px">Otras paginas de interes</div>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <button onclick="go('terms')" style="background:none;border:1px solid var(--border-md);border-radius:99px;padding:7px 16px;font-size:13px;cursor:pointer;font-family:'Outfit',sans-serif;color:var(--gray-700);text-align:left">Terminos de uso</button>
+              <button onclick="go('privacy')" style="background:none;border:1px solid var(--border-md);border-radius:99px;padding:7px 16px;font-size:13px;cursor:pointer;font-family:'Outfit',sans-serif;color:var(--gray-700);text-align:left">Politica de privacidad</button>
+              <button onclick="go('legal')" style="background:none;border:1px solid var(--border-md);border-radius:99px;padding:7px 16px;font-size:13px;cursor:pointer;font-family:'Outfit',sans-serif;color:var(--gray-700);text-align:left">Aviso legal</button>
+              <button onclick="go('cookies')" style="background:none;border:1px solid var(--border-md);border-radius:99px;padding:7px 16px;font-size:13px;cursor:pointer;font-family:'Outfit',sans-serif;color:var(--gray-700);text-align:left">Politica de cookies</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -653,7 +936,7 @@ tr:hover td{background:var(--gray-50)}
     </div>
     <div class="modal-divider"><div class="modal-divider-line"></div><span>o</span><div class="modal-divider-line"></div></div>
     <button class="modal-google" onclick="signInGoogle()">Continuar con Google</button>
-    <div class="modal-terms">Al continuar aceptas los <a onclick="closeModal();go('terms')" style="cursor:pointer">Terminos</a> y la <a onclick="closeModal();go('privacy')" style="cursor:pointer">Politica de privacidad</a> de Beromie.</div>
+    <div class="modal-terms">Al continuar aceptas los <a onclick="closeModal();go('terms')" style="cursor:pointer;color:var(--pink)">Terminos de uso</a>, la <a onclick="closeModal();go('privacy')" style="cursor:pointer;color:var(--pink)">Politica de privacidad</a> y el <a onclick="closeModal();go('legal')" style="cursor:pointer;color:var(--pink)">Aviso legal</a> de Beromie.</div>
   </div>
 </div>
 
@@ -1447,6 +1730,47 @@ async function updateIncidentStatus(id, status) {
   await sb.from('incidents').update(updates).eq('id', id);
   toast('Incidencia actualizada');
   loadAdminIncidents();
+}
+
+// ── FORMULARIO DE CONTACTO ───────────────────────────────────────────────
+async function sendContactForm(e) {
+  e.preventDefault();
+  const name    = document.getElementById('cf-name').value.trim();
+  const email   = document.getElementById('cf-email').value.trim();
+  const subject = document.getElementById('cf-subject').value;
+  const message = document.getElementById('cf-message').value.trim();
+  if (!name || !email || !subject || !message) { toast('Completa todos los campos'); return; }
+
+  const btn = document.getElementById('cf-submit');
+  btn.textContent = 'Enviando...'; btn.disabled = true;
+
+  try {
+    const res = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer re_2DSFStME_PXSqHcfHWq488CrB76fVwt33' },
+      body: JSON.stringify({
+        from: 'Beromie Web <hola@beromie.es>',
+        to: ['pvalera27@gmail.com'],
+        reply_to: email,
+        subject: '[Contacto Beromie] ' + subject + ' - ' + name,
+        html: '<div style="font-family:sans-serif;max-width:520px"><div style="background:#F0135E;padding:20px 24px;border-radius:12px 12px 0 0"><div style="font-size:20px;font-weight:800;color:#fff">Be<span style="color:#FFD6E7">romie</span> &mdash; Nuevo mensaje</div></div><div style="padding:24px;border:1px solid #eee;border-top:none;border-radius:0 0 12px 12px"><table style="width:100%;border-collapse:collapse;margin-bottom:16px"><tr><td style="padding:8px 12px;background:#f9f9f7;color:#888;font-size:13px;width:100px">Nombre</td><td style="padding:8px 12px;font-weight:600">' + name + '</td></tr><tr><td style="padding:8px 12px;color:#888;font-size:13px">Email</td><td style="padding:8px 12px"><a href="mailto:' + email + '" style="color:#F0135E">' + email + '</a></td></tr><tr><td style="padding:8px 12px;background:#f9f9f7;color:#888;font-size:13px">Asunto</td><td style="padding:8px 12px;background:#f9f9f7">' + subject + '</td></tr></table><div style="background:#f9f9f7;padding:14px 16px;border-radius:8px;font-size:14px;line-height:1.7;color:#3D3D3C">' + message.replace(/\n/g,'<br>') + '</div><p style="color:#aaa;font-size:12px;margin-top:20px">Puedes responder directamente a este email.</p></div></div>',
+      }),
+    });
+    if (res.ok) {
+      document.getElementById('cf-success').style.display = 'block';
+      document.getElementById('cf-name').value = '';
+      document.getElementById('cf-email').value = '';
+      document.getElementById('cf-subject').value = '';
+      document.getElementById('cf-message').value = '';
+      btn.textContent = 'Mensaje enviado';
+    } else {
+      throw new Error('Error ' + res.status);
+    }
+  } catch(err) {
+    toast('Error al enviar. Escribenos directamente a hola@beromie.es');
+    btn.textContent = 'Enviar mensaje'; btn.disabled = false;
+    console.error('Contact form error:', err);
+  }
 }
 
 let toastTimer;
