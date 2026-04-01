@@ -691,19 +691,63 @@ const thumbEmojis=['&#128705;','&#128167;','&#9728;','&#127751;','&#128705;','&#
 document.addEventListener('DOMContentLoaded', async () => {
   const loadingTimeout = setTimeout(() => hideLoading(), 3000);
   try {
-    sb.auth.onAuthStateChange(async (event, session) => {
+    // Supabase detecta automáticamente tokens en el hash (#access_token=...)
+    // que llegan tras confirmar el email. onAuthStateChange los procesa.
+    sb.auth.onAuthStateChange(async (evt, session) => {
       currentUser = session?.user || null;
-      if (currentUser) { await loadProfile(); updateUIForAuth(); }
-      else { currentProfile = null; updateUIForGuest(); }
+      if (currentUser) {
+        await loadProfile();
+        updateUIForAuth();
+        // Si viene de email de reserva con ?booking=ID, ir al dashboard y mostrar banner
+        const urlParams = new URLSearchParams(window.location.search);
+        const bookingParam = urlParams.get('booking');
+        if (bookingParam && (evt === 'SIGNED_IN' || evt === 'TOKEN_REFRESHED')) {
+          window.history.replaceState({}, '', '/');
+          setTimeout(() => loadTenantDashboardAndHighlight(bookingParam), 600);
+        }
+      } else {
+        currentProfile = null;
+        updateUIForGuest();
+      }
     });
+
     const [{ data: { session } }] = await Promise.all([sb.auth.getSession(), loadRooms()]);
     currentUser = session?.user || null;
-    if (currentUser) { await loadProfile(); updateUIForAuth(); }
-    else { updateUIForGuest(); }
+    if (currentUser) {
+      await loadProfile();
+      updateUIForAuth();
+    } else {
+      updateUIForGuest();
+    }
     checkStripeReturn();
+
+    // Detectar ?booking= si el usuario ya tiene sesion activa
+    const urlParams = new URLSearchParams(window.location.search);
+    const bookingParam = urlParams.get('booking');
+    if (bookingParam && currentUser) {
+      window.history.replaceState({}, '', '/');
+      setTimeout(() => loadTenantDashboardAndHighlight(bookingParam), 600);
+    }
+
   } catch(e) { console.error('Init error:', e); }
   finally { clearTimeout(loadingTimeout); hideLoading(); }
 });
+
+// Ir al dashboard y mostrar el banner de la reserva específica
+async function loadTenantDashboardAndHighlight(bookingId) {
+  go('tenant');
+  // Esperar a que el dashboard cargue y luego buscar la reserva
+  await loadTenantDashboard();
+  // Buscar la reserva en la BD para mostrar el banner
+  const { data: booking } = await sb.from('bookings')
+    .select('*, rooms(*)')
+    .eq('id', bookingId)
+    .eq('tenant_id', currentUser.id)
+    .single();
+  if (booking) {
+    showPreReservaBanner(booking, booking.rooms);
+  }
+}
 
 function hideLoading() {
   const el = document.getElementById('loading');
@@ -965,22 +1009,28 @@ function showPreReservaBanner(booking, room) {
   container.innerHTML = '<div style="background:linear-gradient(135deg,#fff8f0,#fff0f5);border:2px solid #FFD6E7;border-radius:20px;padding:24px 28px;margin-bottom:24px;position:relative"><button onclick="document.getElementById(\'preReservaContainer\').innerHTML=\'\'" style="position:absolute;top:14px;right:16px;background:none;border:none;font-size:18px;color:#ACACAA;cursor:pointer">x</button><div style="display:flex;align-items:flex-start;gap:18px"><div style="font-size:36px;flex-shrink:0">&#127968;</div><div style="flex:1"><div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap"><span style="font-family:\'Syne\',sans-serif;font-size:18px;font-weight:800;color:#0C0C0B">Habitacion pre-reservada</span><span style="background:#FFF8E6;color:#8A6200;font-size:11px;font-weight:700;padding:3px 10px;border-radius:99px">Pendiente de confirmar</span></div><div style="font-size:14px;color:#6B6B69;line-height:1.6;margin-bottom:16px">Tu solicitud para <strong style="color:#0C0C0B">' + (room?.title || 'la habitacion') + '</strong> esta registrada. El equipo Beromie revisara tu solicitud y te contactara en menos de <strong>24 horas</strong> para confirmar disponibilidad y coordinar la firma del contrato.</div><div style="background:rgba(240,19,94,0.05);border-radius:12px;padding:14px 16px;margin-bottom:16px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;text-align:center"><div><div style="font-size:11px;color:#8C8C8A;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px">Entrada</div><div style="font-size:14px;font-weight:700;color:#0C0C0B">' + booking.start_date + '</div></div><div style="border-left:1px solid #FFD6E7;border-right:1px solid #FFD6E7"><div style="font-size:11px;color:#8C8C8A;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px">Duracion</div><div style="font-size:14px;font-weight:700;color:#0C0C0B">' + booking.duration_months + ' meses</div></div><div><div style="font-size:11px;color:#8C8C8A;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px">Renta</div><div style="font-size:14px;font-weight:700;color:#0C0C0B">' + price + ' EUR/mes</div></div></div><div style="background:#EDFAF4;border-radius:10px;padding:12px 16px;font-size:13px;color:#1A7A4A;display:flex;align-items:center;gap:8px"><span style="font-size:16px">&#10003;</span>Email de confirmacion enviado - Revisa tu bandeja de entrada</div></div></div></div>';
 }
 
-async function redirectToCheckout(bookingId) {
-  try {
-    // Refrescar sesion antes de llamar a Stripe para evitar token expirado (401)
-    const { data: refreshData } = await sb.auth.refreshSession();
-    const session = refreshData?.session;
-    const token = session?.access_token;
+async function redirectToCheckout(bookingId, btnEl) {
+  // btnEl es opcional - se pasa desde onclick="redirectToCheckout(id, this)"
+  if (btnEl) { btnEl.textContent = 'Preparando pago...'; btnEl.disabled = true; }
 
+  try {
+    // 1. Intentar refrescar sesion primero
+    let token = null;
+    const { data: refreshData } = await sb.auth.refreshSession();
+    token = refreshData?.session?.access_token;
+
+    // 2. Si no hay token tras refresh, intentar getSession
     if (!token) {
-      // Si no hay sesion activa, pedir login de nuevo
-      toast('Sesion expirada. Inicia sesion para completar el pago.');
-      setTimeout(() => openModal(), 1000);
-      return;
+      const { data: { session } } = await sb.auth.getSession();
+      token = session?.access_token;
     }
 
-    const btn = event?.target;
-    if (btn && btn.tagName === 'BUTTON') { btn.textContent = 'Preparando pago...'; btn.disabled = true; }
+    if (!token) {
+      toast('Sesion expirada. Inicia sesion para completar el pago.');
+      if (btnEl) { btnEl.textContent = 'Completar pago'; btnEl.disabled = false; }
+      setTimeout(() => openModal(), 800);
+      return;
+    }
 
     const res = await fetch('https://zvjgxmdstaxwnlxqgsyx.supabase.co/functions/v1/create-checkout-session', {
       method: 'POST',
@@ -994,9 +1044,11 @@ async function redirectToCheckout(bookingId) {
       console.error('Checkout error:', res.status, data);
       const errMsg = res.status === 401
         ? 'Sesion expirada. Inicia sesion e intentalo de nuevo.'
-        : 'Error al iniciar el pago. Tu reserva esta guardada, te contactaremos pronto.';
+        : res.status === 503
+        ? 'Pagos en configuracion. Tu reserva esta guardada, te contactaremos pronto.'
+        : (data.error || 'Error al iniciar el pago. Tu reserva esta guardada.');
       toast(errMsg);
-      if (btn && btn.tagName === 'BUTTON') { btn.textContent = 'Completar pago'; btn.disabled = false; }
+      if (btnEl) { btnEl.textContent = 'Completar pago'; btnEl.disabled = false; }
       return;
     }
 
@@ -1005,6 +1057,7 @@ async function redirectToCheckout(bookingId) {
   } catch (err) {
     toast('Error de conexion. Tu reserva esta guardada.');
     console.error('redirectToCheckout error:', err);
+    if (btnEl) { btnEl.textContent = 'Completar pago'; btnEl.disabled = false; }
   }
 }
 
@@ -1059,7 +1112,7 @@ async function loadTenantDashboard() {
       const room = b.rooms;
       const [cls, txt] = bMap[b.status] || ['sp-pend','Pendiente'];
       const date = new Date(b.created_at).toLocaleDateString('es-ES', {day:'numeric',month:'long',year:'numeric'});
-      const payBtn = (b.status === 'pending' && !b.fee_paid) ? '<br><button onclick="redirectToCheckout(\'' + b.id + '\')" style="margin-top:6px;padding:5px 14px;background:var(--pink);color:#fff;border:none;border-radius:99px;font-size:12px;font-weight:600;cursor:pointer;font-family:\'Outfit\',sans-serif">Completar pago</button>' : '';
+      const payBtn = (b.status === 'pending' && !b.fee_paid) ? '<br><button onclick="redirectToCheckout(\'' + b.id + '\', this)" style="margin-top:6px;padding:5px 14px;background:var(--pink);color:#fff;border:none;border-radius:99px;font-size:12px;font-weight:600;cursor:pointer;font-family:\'Outfit\',sans-serif">Completar pago</button>' : '';
       return '<tr><td>' + date + '</td><td>' + (room?.title || 'Habitacion') + ' - ' + (room?.city || room?.zone || '') + '</td><td><strong>' + (room?.price || '-') + ' EUR/mes</strong><br><span style="font-size:12px;color:var(--gray-400)">' + b.duration_months + ' meses - desde ' + b.start_date + '</span></td><td><span class="spill ' + cls + '">' + txt + '</span>' + payBtn + '</td></tr>';
     }).join('');
     const th = tbody.closest('table').querySelector('thead tr');
