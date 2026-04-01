@@ -698,10 +698,20 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (currentUser) {
         await loadProfile();
         updateUIForAuth();
-        // Si viene de email de reserva con ?booking=ID, ir al dashboard y mostrar banner
+        // Si viene de email con parametros de URL
         const urlParams = new URLSearchParams(window.location.search);
         const bookingParam = urlParams.get('booking');
-        if (bookingParam && (evt === 'SIGNED_IN' || evt === 'TOKEN_REFRESHED')) {
+        const panelParam   = urlParams.get('panel');
+
+        if (panelParam === 'admin' && (evt === 'SIGNED_IN' || evt === 'TOKEN_REFRESHED')) {
+          window.history.replaceState({}, '', '/');
+          if (currentProfile?.role === 'admin') {
+            setTimeout(() => go('admin'), 400);
+          } else {
+            toast('Inicia sesion con tu cuenta de administrador');
+            setTimeout(() => openModal(), 600);
+          }
+        } else if (bookingParam && (evt === 'SIGNED_IN' || evt === 'TOKEN_REFRESHED')) {
           window.history.replaceState({}, '', '/');
           setTimeout(() => loadTenantDashboardAndHighlight(bookingParam), 600);
         }
@@ -721,10 +731,22 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
     checkStripeReturn();
 
-    // Detectar ?booking= si el usuario ya tiene sesion activa
+    // Detectar parametros de URL
     const urlParams = new URLSearchParams(window.location.search);
     const bookingParam = urlParams.get('booking');
-    if (bookingParam && currentUser) {
+    const panelParam   = urlParams.get('panel');
+
+    if (panelParam === 'admin' && currentUser) {
+      // El admin llega desde el email de notificacion
+      window.history.replaceState({}, '', '/');
+      if (currentProfile?.role === 'admin') {
+        setTimeout(() => go('admin'), 400);
+      } else {
+        // Sesion de otro usuario activa — pedir login de admin
+        toast('Inicia sesion con tu cuenta de administrador');
+        setTimeout(() => openModal(), 600);
+      }
+    } else if (bookingParam && currentUser) {
       window.history.replaceState({}, '', '/');
       setTimeout(() => loadTenantDashboardAndHighlight(bookingParam), 600);
     }
@@ -1052,10 +1074,12 @@ async function redirectToCheckout(bookingId, btnEl) {
     console.log('Checkout response:', res.status, data);
 
     if (!res.ok || !data.url) {
-      let errMsg = 'Error al iniciar el pago. Tu reserva esta guardada.';
-      if (res.status === 401) errMsg = 'Sesion expirada. Recarga la pagina y vuelve a intentarlo.';
-      else if (res.status === 503 || (data.error && data.error.includes('stripe'))) errMsg = 'Pagos en configuracion. Te contactaremos para completar la reserva.';
-      else if (data.error) errMsg = data.error;
+      let errMsg = 'Error al iniciar el pago. Tu reserva esta guardada, te contactamos pronto.';
+      if (res.status === 503 || (data.error && data.error.includes('stripe_not_configured'))) {
+        errMsg = 'Pagos en configuracion. Tu reserva esta guardada, te contactaremos pronto.';
+      } else if (data.error && !data.error.includes('token') && !data.error.includes('auth')) {
+        errMsg = data.error;
+      }
       toast(errMsg);
       resetBtn();
       return;
