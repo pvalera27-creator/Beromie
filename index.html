@@ -997,8 +997,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Supabase detecta automáticamente tokens en el hash (#access_token=...)
     // que llegan tras confirmar el email. onAuthStateChange los procesa.
     sb.auth.onAuthStateChange(async (evt, session) => {
-      // En modo demo no interferir con el flujo manual
-      if (isDemoMode) return;
       currentUser = session?.user || null;
       if (currentUser) {
         await loadProfile();
@@ -1802,69 +1800,66 @@ async function sendContactForm(e) {
   }
 }
 
-// ── MODO DEMO ────────────────────────────────────────────────────────────
+// ── MODO DEMO (sin autenticación — datos hardcoded para máxima fiabilidad) ──
 let isDemoMode = false;
 
-async function enterDemoMode(btnEl) {
-  // Bloquear botones
-  document.querySelectorAll('.btn-demo, .btn-demo-hero').forEach(b => {
-    b._origText = b.textContent; b.textContent = 'Cargando...'; b.disabled = true;
-  });
+function enterDemoMode(btnEl) {
+  // Datos demo fijos — no depende de auth ni de DB
+  const DEMO_ROOMS = [
+    { title: 'Habitación luminosa junto a la UMU',          city: 'Espinardo', price: '295', cls: 'sp-late',  status: 'Ocupada'     },
+    { title: 'Habitación premium con baño propio – La Flota', city: 'La Flota',  price: '420', cls: 'sp-ok',   status: 'Disponible'  },
+    { title: 'Loft en edificio histórico reformado – Centro', city: 'Centro',    price: '490', cls: 'sp-ok',   status: 'Disponible'  },
+    { title: 'Exterior con vistas y A/C – El Carmen',        city: 'El Carmen', price: '380', cls: 'sp-pend', status: 'Reservada'   },
+  ];
+  const DEMO_BOOKINGS = [
+    { room: 'Habitación luminosa junto a la UMU',          tenant: 'Ana García López', date: '2026-02-01', dur: '9 meses',  cls: 'sp-ok',   status: 'Confirmada' },
+    { room: 'Exterior con vistas y A/C – El Carmen',        tenant: 'Ana García López', date: '2026-05-01', dur: '6 meses',  cls: 'sp-pend', status: 'Pendiente'  },
+  ];
 
-  try {
-    // 1. Login con cuenta demo
-    const { data, error } = await sb.auth.signInWithPassword({
-      email: 'demo@beromie.es', password: 'Demo2025!'
-    });
-    if (error) throw new Error('Login fallido: ' + error.message);
+  isDemoMode = true;
 
-    // 2. Setear usuario y modo demo ANTES de cualquier otra cosa
-    currentUser = data.user;
-    isDemoMode = true;
+  // 1. Topbar: avatar y ocultar botones de sesión
+  const avatar = document.getElementById('userAvatar');
+  if (avatar) { avatar.textContent = 'DP'; avatar.style.display = 'flex'; }
+  document.getElementById('btnLogin').style.display = 'none';
+  document.getElementById('btnDemo').style.display = 'none';
+  const menuDash = document.getElementById('menuDashboard');
+  if (menuDash) { menuDash.textContent = 'Panel propietario'; menuDash.onclick = () => {}; }
 
-    // 3. Obtener perfil directamente (sin tocar DOM de perfil)
-    const { data: profile } = await sb.from('profiles')
-      .select('*').eq('id', currentUser.id).single();
-    currentProfile = profile;
+  // 2. Navegar al panel propietario (sin llamar go() para no triggear loadOwnerDashboard)
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tnav').forEach(b => b.classList.remove('on'));
+  document.getElementById('screen-owner').classList.add('active');
+  document.getElementById('nb-owner')?.classList.add('on');
+  window.scrollTo(0, 0);
 
-    // 4. Actualizar UI básica manualmente (sin llamar updateUIForAuth que puede fallar)
-    const avatar = document.getElementById('userAvatar');
-    if (avatar) { avatar.textContent = 'DP'; avatar.style.display = 'flex'; }
-    const btnLogin = document.getElementById('btnLogin');
-    if (btnLogin) btnLogin.style.display = 'none';
-    const adminBtn = document.getElementById('nb-admin');
-    if (adminBtn) adminBtn.style.display = 'none';
-    const menuDash = document.getElementById('menuDashboard');
-    if (menuDash) { menuDash.textContent = 'Panel propietario'; menuDash.onclick = () => { go('owner'); }; }
+  // 3. Rellenar métricas
+  const totalRent = DEMO_ROOMS.reduce((s, r) => s + parseInt(r.price), 0);
+  const occupied  = DEMO_ROOMS.filter(r => r.status !== 'Disponible').length;
+  const commission = Math.round(totalRent * 0.17);
+  document.getElementById('ownerSub').textContent       = 'Demo Propietario — Panel de gestión';
+  document.getElementById('ownerIncome').textContent    = totalRent + ' EUR';
+  document.getElementById('ownerOccupancy').textContent = Math.round(occupied / DEMO_ROOMS.length * 100) + '%';
+  document.getElementById('ownerOccSub').textContent    = occupied + '/' + DEMO_ROOMS.length + ' habitaciones';
+  document.getElementById('ownerCommission').textContent = commission + ' EUR';
+  document.getElementById('ownerNet').textContent        = (totalRent - commission) + ' EUR';
 
-    // 5. Navegar al panel de propietario
-    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-    const ownerScreen = document.getElementById('screen-owner');
-    if (ownerScreen) ownerScreen.classList.add('active');
+  // 4. Tabla de habitaciones
+  document.getElementById('ownerRoomsBody').innerHTML = DEMO_ROOMS.map(r =>
+    '<tr><td><strong>' + r.title + '</strong></td><td>' + r.city + '</td><td>' + r.price + ' EUR</td>' +
+    '<td><span class="spill ' + r.cls + '">' + r.status + '</span></td></tr>'
+  ).join('');
 
-    // 6. Cargar datos del propietario
-    await loadOwnerDashboard();
+  // 5. Tabla de reservas
+  document.getElementById('ownerBookingsBody').innerHTML = DEMO_BOOKINGS.map(b =>
+    '<tr><td>' + b.room + '</td><td>' + b.tenant + '</td><td>' + b.date + '</td>' +
+    '<td>' + b.dur + '</td><td><span class="spill ' + b.cls + '">' + b.status + '</span></td></tr>'
+  ).join('');
 
-    // 7. Banner demo
-    showDemoBanner();
+  // 6. Banner demo
+  showDemoBanner();
 
-    // 8. Restaurar botones (ahora ocultos pero por si acaso)
-    document.querySelectorAll('.btn-demo, .btn-demo-hero').forEach(b => {
-      b.textContent = b._origText || '▶ Demo propietario'; b.disabled = false;
-    });
-
-    toast('Bienvenido al panel de demostración de Beromie');
-
-  } catch(err) {
-    console.error('[demo] Error:', err);
-    toast('No se pudo cargar el demo. Inténtalo de nuevo.');
-    document.querySelectorAll('.btn-demo, .btn-demo-hero').forEach(b => {
-      b.textContent = b._origText || '▶ Demo propietario'; b.disabled = false;
-    });
-    // Cerrar sesión demo si se abrió
-    try { await sb.auth.signOut(); } catch(e) {}
-    isDemoMode = false; currentUser = null; currentProfile = null;
-  }
+  toast('Bienvenido al panel de demostración de Beromie');
 }
 
 function showDemoBanner() {
@@ -1872,31 +1867,33 @@ function showDemoBanner() {
   const banner = document.createElement('div');
   banner.id = 'demoBanner';
   banner.className = 'demo-banner';
-  banner.innerHTML = `
-    <div class="demo-banner-txt">
-      <span class="demo-pill">DEMO</span>
-      <div>
-        <strong>Panel de demostración</strong> — Estás viendo el panel de un propietario real con 4 habitaciones, reservas, pagos e incidencias de ejemplo.
-      </div>
-    </div>
-    <div class="demo-banner-actions">
-      <button class="demo-cta-btn" onclick="closeModal();openModal();setModalTab('register')">Crear mi cuenta gratis</button>
-      <button class="demo-exit-btn" onclick="exitDemoMode()">Salir del demo</button>
-    </div>
-  `;
+  banner.innerHTML =
+    '<div class="demo-banner-txt">' +
+      '<span class="demo-pill">DEMO</span>' +
+      '<div><strong>Panel de demostración</strong> — 4 habitaciones reales, reservas, pagos e incidencias de ejemplo.</div>' +
+    '</div>' +
+    '<div class="demo-banner-actions">' +
+      '<button class="demo-cta-btn" onclick="exitDemoMode();openModal();setModalTab('register')">Crear mi cuenta gratis</button>' +
+      '<button class="demo-exit-btn" onclick="exitDemoMode()">Salir del demo</button>' +
+    '</div>';
   document.body.appendChild(banner);
-  // Añadir padding al body para que el banner no tape contenido
   document.body.style.paddingBottom = '52px';
 }
 
-async function exitDemoMode() {
+function exitDemoMode() {
   isDemoMode = false;
-  await sb.auth.signOut();
-  currentUser = null; currentProfile = null;
   const banner = document.getElementById('demoBanner');
   if (banner) { banner.remove(); document.body.style.paddingBottom = ''; }
-  go('landing');
-  updateUIForGuest();
+  // Restaurar topbar
+  document.getElementById('userAvatar').style.display = 'none';
+  document.getElementById('btnLogin').style.display = 'flex';
+  document.getElementById('btnDemo').style.display = 'flex';
+  // Volver a landing
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tnav').forEach(b => b.classList.remove('on'));
+  document.getElementById('screen-landing').classList.add('active');
+  document.getElementById('nb-landing')?.classList.add('on');
+  window.scrollTo(0, 0);
   toast('Has salido del modo demo');
 }
 
