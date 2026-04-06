@@ -41,19 +41,12 @@ body{font-family:'Outfit',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif
 .bell-dot{position:absolute;top:6px;right:6px;width:7px;height:7px;border-radius:50%;background:var(--pink);border:2px solid var(--white);display:none}
 .btn-login{padding:7px 16px;border-radius:99px;font-size:13px;font-weight:500;background:none;color:var(--gray-700);border:1px solid var(--border-md);cursor:pointer;font-family:'Outfit',sans-serif;transition:var(--t)}
 .btn-login:hover{border-color:var(--pink);color:var(--pink)}
-.btn-demo{padding:7px 16px;border-radius:99px;font-size:13px;font-weight:700;background:var(--black);color:var(--white);border:none;cursor:pointer;font-family:'Outfit',sans-serif;transition:var(--t);display:flex;align-items:center;gap:6px}
-.btn-demo:hover{background:var(--gray-700);transform:translateY(-1px)}
-.btn-demo-hero{padding:12px 28px;border-radius:99px;font-size:14px;font-weight:700;background:var(--black);color:var(--white);border:none;cursor:pointer;font-family:'Outfit',sans-serif;transition:var(--t);display:inline-flex;align-items:center;gap:8px;box-shadow:0 4px 16px rgba(0,0,0,0.15)}
-.btn-demo-hero:hover{background:var(--gray-700);transform:translateY(-1px)}
-.demo-banner{position:fixed;bottom:0;left:0;right:0;z-index:200;background:linear-gradient(90deg,#0C0C0B 0%,#1A1A19 100%);color:var(--white);padding:10px 24px;display:flex;align-items:center;justify-content:space-between;gap:12px;border-top:1px solid rgba(255,255,255,0.1)}
-.demo-banner-txt{font-size:13px;color:rgba(255,255,255,0.7);display:flex;align-items:center;gap:8px}
-.demo-banner-txt strong{color:var(--white)}
-.demo-banner-txt .demo-pill{background:var(--pink);color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:99px;letter-spacing:0.5px}
-.demo-banner-actions{display:flex;gap:8px;align-items:center}
-.demo-exit-btn{padding:6px 16px;border-radius:99px;font-size:12px;font-weight:600;background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.8);border:1px solid rgba(255,255,255,0.2);cursor:pointer;font-family:'Outfit',sans-serif;transition:var(--t)}
-.demo-exit-btn:hover{background:rgba(255,255,255,0.2);color:#fff}
-.demo-cta-btn{padding:6px 16px;border-radius:99px;font-size:12px;font-weight:700;background:var(--pink);color:#fff;border:none;cursor:pointer;font-family:'Outfit',sans-serif;transition:var(--t)}
-.demo-cta-btn:hover{background:var(--pink-vivid)}
+.btn-dl{padding:9px 18px;border-radius:99px;font-size:13px;font-weight:600;background:var(--black);color:var(--white);border:none;cursor:pointer;font-family:'Outfit',sans-serif;transition:var(--t);display:flex;align-items:center;gap:7px}
+.btn-dl:hover{background:var(--gray-700);transform:translateY(-1px)}
+.otc{display:none}
+.otc.on{display:block}
+.occ-bar{background:var(--border);border-radius:99px;height:6px;width:80px;overflow:hidden;display:inline-block;vertical-align:middle}
+.occ-fill{background:var(--pink);height:100%;border-radius:99px}
 .pill{padding:8px 18px;border-radius:99px;font-size:13px;font-weight:600;background:var(--pink);color:var(--white);border:none;cursor:pointer;font-family:'Outfit',sans-serif;transition:var(--t)}
 .pill:hover{background:var(--pink-vivid);transform:translateY(-1px);box-shadow:0 4px 16px rgba(240,19,94,0.3)}
 .user-avatar{width:34px;height:34px;border-radius:50%;background:var(--pink-mid);color:var(--pink-dark);font-size:13px;font-weight:700;display:none;align-items:center;justify-content:center;cursor:pointer;border:2px solid var(--white);box-shadow:var(--shadow-sm)}
@@ -339,7 +332,6 @@ tr:hover td{background:var(--gray-50)}
   </nav>
   <div class="topbar-right" style="position:relative">
     <div class="bell" id="bellBtn">&#128276;<div class="bell-dot" id="bellDot"></div></div>
-    <button class="btn-demo" id="btnDemo" onclick="enterDemoMode(this)" title="Ver demo para propietarios">&#9654; Demo propietario</button>
     <button class="btn-login" id="btnLogin" onclick="openModal()">Entrar</button>
     <button class="pill" id="btnReservar" onclick="go('landing');setTimeout(scrollToRooms,100)">Ver habitaciones</button>
     <div class="user-avatar" id="userAvatar" onclick="toggleUserMenu()"></div>
@@ -361,12 +353,6 @@ tr:hover td{background:var(--gray-50)}
       <div class="hero-actions">
         <button class="btn-primary" onclick="scrollToRooms()">Buscar habitacion</button>
         <button class="btn-ghost" onclick="openModal()">Crear cuenta gratis</button>
-      </div>
-      <div style="margin-top:16px">
-        <button class="btn-demo-hero" onclick="enterDemoMode(this)">
-          &#9654; Ver demo para propietarios
-        </button>
-        <div style="font-size:12px;color:var(--gray-400);margin-top:8px">Explora el panel de control como propietario</div>
       </div>
       <div class="hero-stats">
         <div><div class="hstat-n" id="stat-rooms"><em>-</em></div><div class="hstat-l">Habitaciones activas</div></div>
@@ -514,23 +500,87 @@ tr:hover td{background:var(--gray-50)}
 <div class="screen" id="screen-owner">
   <div class="dash">
     <div class="dash-head">
-      <div><div class="dash-greet">Panel <em>propietario</em></div><div class="dash-sub" id="ownerSub">Cargando datos...</div></div>
+      <div>
+        <div class="dash-greet">Panel <em>propietario</em></div>
+        <div class="dash-sub" id="ownerSub">Cargando datos...</div>
+      </div>
+      <button class="btn-dl" onclick="generateAnnualReport()">&#11015; Informe anual PDF</button>
     </div>
+    <!-- KPIs anuales -->
     <div class="metrics ow4">
-      <div class="met"><div class="met-lbl">Ingresos este mes</div><div class="met-val" id="ownerIncome">-</div><div class="met-sub" style="color:var(--green)">Renta bruta</div></div>
-      <div class="met good"><div class="met-lbl">Ocupacion</div><div class="met-val" id="ownerOccupancy">-</div><div class="met-sub" id="ownerOccSub"></div></div>
-      <div class="met"><div class="met-lbl">Comision Beromie</div><div class="met-val" id="ownerCommission">-</div><div class="met-sub">17% de la renta</div></div>
-      <div class="met"><div class="met-lbl">Neto estimado</div><div class="met-val" id="ownerNet">-</div><div class="met-sub">Este mes</div></div>
+      <div class="met good">
+        <div class="met-lbl">Ingresos anuales</div>
+        <div class="met-val" id="ownerAnnualIncome">-</div>
+        <div class="met-sub">Rentas cobradas (12 meses)</div>
+      </div>
+      <div class="met warn">
+        <div class="met-lbl">Comision Beromie (17%)</div>
+        <div class="met-val" id="ownerAnnualCommission">-</div>
+        <div class="met-sub">Gestion, incidencias y pagos</div>
+      </div>
+      <div class="met">
+        <div class="met-lbl">Neto recibido</div>
+        <div class="met-val" id="ownerAnnualNet">-</div>
+        <div class="met-sub">Transferido a tu cuenta</div>
+      </div>
+      <div class="met">
+        <div class="met-lbl">Ocupacion media</div>
+        <div class="met-val" id="ownerAvgOccupancy">-</div>
+        <div class="met-sub" id="ownerOccSub">12 meses</div>
+      </div>
     </div>
-    <div class="sec-hdr"><div class="sec-title">Habitaciones gestionadas</div></div>
-    <div class="tbl-wrap" style="margin-bottom:24px">
-      <table><thead><tr><th>Habitacion</th><th>Ciudad</th><th>Renta</th><th>Estado</th></tr></thead>
-      <tbody id="ownerRoomsBody"><tr><td colspan="4" style="text-align:center;padding:24px;color:var(--gray-400)">Cargando...</td></tr></tbody></table>
+    <!-- Tabs -->
+    <div class="tabs-bar" style="margin-bottom:22px">
+      <button class="dtab on" onclick="setOwnerTab('resumen',this)">Resumen</button>
+      <button class="dtab" onclick="setOwnerTab('informes',this)">Informes mensuales</button>
+      <button class="dtab" onclick="setOwnerTab('incidencias',this)">Incidencias</button>
     </div>
-    <div class="sec-hdr"><div class="sec-title">Reservas activas</div></div>
-    <div class="tbl-wrap">
-      <table><thead><tr><th>Habitacion</th><th>Inquilino</th><th>Inicio</th><th>Duracion</th><th>Estado</th></tr></thead>
-      <tbody id="ownerBookingsBody"><tr><td colspan="5" style="text-align:center;padding:24px;color:var(--gray-400)">Cargando...</td></tr></tbody></table>
+    <!-- Tab: Resumen -->
+    <div class="otc on" id="otc-resumen">
+      <div class="sec-hdr" style="margin-bottom:14px">
+        <div class="sec-title">Ingresos por mes</div>
+        <div style="font-size:13px;color:var(--gray-400)">Barras rosas = bruto | verde = neto tras comision</div>
+      </div>
+      <div id="ownerChart" style="margin-bottom:28px"></div>
+      <div class="sec-hdr" style="margin-bottom:14px">
+        <div class="sec-title">Habitaciones gestionadas</div>
+      </div>
+      <div class="tbl-wrap" style="margin-bottom:0">
+        <table>
+          <thead><tr><th>Habitacion</th><th>Ciudad</th><th>Renta/mes</th><th>Estado</th><th>Ocupacion 12m</th><th>Ingresos 12m</th></tr></thead>
+          <tbody id="ownerRoomsBody"><tr><td colspan="6" style="text-align:center;padding:24px;color:var(--gray-400)">Cargando...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+    <!-- Tab: Informes mensuales -->
+    <div class="otc" id="otc-informes">
+      <div class="sec-hdr" style="margin-bottom:14px">
+        <div class="sec-title">Informes mensuales</div>
+        <div style="font-size:13px;color:var(--gray-400)">Descarga el informe PDF de cada mes para tu contabilidad</div>
+      </div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr>
+            <th>Mes</th><th>Ingresos brutos</th><th>Comision Beromie</th>
+            <th>Neto</th><th>Hab. ocupadas</th><th>Incidencias</th><th>Descargar</th>
+          </tr></thead>
+          <tbody id="ownerMonthlyBody"><tr><td colspan="7" style="text-align:center;padding:24px;color:var(--gray-400)">Cargando...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+    <!-- Tab: Incidencias -->
+    <div class="otc" id="otc-incidencias">
+      <div class="metrics" style="grid-template-columns:repeat(3,minmax(0,1fr));margin-bottom:22px">
+        <div class="met good"><div class="met-lbl">Resueltas</div><div class="met-val" id="incResolved">-</div><div class="met-sub">Ultimo ano</div></div>
+        <div class="met warn"><div class="met-lbl">En gestion / Abiertas</div><div class="met-val" id="incOpen">-</div><div class="met-sub">Actualmente</div></div>
+        <div class="met"><div class="met-lbl">Tiempo medio resolucion</div><div class="met-val" id="incAvgTime">-</div><div class="met-sub">dias habiles</div></div>
+      </div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Fecha</th><th>Incidencia</th><th>Habitacion</th><th>Estado</th><th>Resolucion</th></tr></thead>
+          <tbody id="ownerIncidentsBody"><tr><td colspan="5" style="text-align:center;padding:24px;color:var(--gray-400)">Cargando...</td></tr></tbody>
+        </table>
+      </div>
     </div>
   </div>
 </div>
@@ -1089,8 +1139,6 @@ function updateUIForAuth() {
   avatar.textContent = initials;
   avatar.style.display = 'flex';
   document.getElementById('btnLogin').style.display = 'none';
-  const demoBtn = document.getElementById('btnDemo');
-  if (demoBtn) demoBtn.style.display = 'none';
   document.getElementById('bellDot').style.display = 'block';
   const adminBtn = document.getElementById('nb-admin');
   if (adminBtn) adminBtn.style.display = currentProfile?.role === 'admin' ? 'flex' : 'none';
@@ -1107,8 +1155,6 @@ function updateUIForAuth() {
 function updateUIForGuest() {
   document.getElementById('userAvatar').style.display = 'none';
   document.getElementById('btnLogin').style.display = 'flex';
-  const demoBtnG = document.getElementById('btnDemo');
-  if (demoBtnG && !isDemoMode) demoBtnG.style.display = 'flex';
   document.getElementById('bellDot').style.display = 'none';
   document.getElementById('userMenu').classList.remove('open');
 }
@@ -1559,35 +1605,391 @@ async function sendMessage() {
   input.value = '';
 }
 
+let ownerMonthlyDataCache = {};
+
 async function loadOwnerDashboard() {
   if (!currentUser) return;
-  document.getElementById('ownerSub').textContent = (currentProfile?.full_name || 'Propietario') + ' - Panel de gestion';
+  document.getElementById('ownerSub').textContent = 'Cargando datos...';
+
+  // Cargar habitaciones
   const { data: rooms } = await sb.from('rooms').select('*').eq('owner_id', currentUser.id);
-  const totalRooms = rooms?.length || 0;
-  const occupied = rooms?.filter(r => r.status !== 'available').length || 0;
-  const totalRent = rooms?.reduce((s, r) => s + (r.price || 0), 0) || 0;
-  const commission = Math.round(totalRent * 0.17);
-  document.getElementById('ownerIncome').textContent = totalRent > 0 ? totalRent + ' EUR' : '-';
-  document.getElementById('ownerOccupancy').textContent = totalRooms > 0 ? Math.round(occupied/totalRooms*100) + '%' : '-';
-  document.getElementById('ownerOccSub').textContent = occupied + '/' + totalRooms + ' habitaciones';
-  document.getElementById('ownerCommission').textContent = commission > 0 ? commission + ' EUR' : '-';
-  document.getElementById('ownerNet').textContent = commission > 0 ? (totalRent - commission) + ' EUR' : '-';
-  const tbody = document.getElementById('ownerRoomsBody');
-  if (rooms?.length) {
-    const sMap = { available: ['sp-ok','Disponible'], reserved: ['sp-pend','Reservada'], occupied: ['sp-ok','Ocupada'] };
-    tbody.innerHTML = rooms.map(r => { const [cls,txt] = sMap[r.status]||['sp-pend','-']; return '<tr><td><strong>' + r.title + '</strong></td><td>' + (r.city || r.zone) + '</td><td>' + r.price + ' EUR</td><td><span class="spill ' + cls + '">' + txt + '</span></td></tr>'; }).join('');
-  } else {
-    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--gray-400);padding:24px">Sin habitaciones</td></tr>';
+  if (!rooms?.length) {
+    document.getElementById('ownerSub').textContent = 'Sin habitaciones registradas';
+    return;
   }
-  const { data: bookings } = await sb.from('bookings').select('*, rooms(title,city,zone), profiles!tenant_id(full_name)').in('room_id', rooms?.map(r => r.id) || []);
-  const bookBody = document.getElementById('ownerBookingsBody');
-  if (bookings?.length) {
-    const bMap = { pending: ['sp-pend','Pendiente'], confirmed: ['sp-ok','Confirmada'], cancelled: ['sp-late','Cancelada'] };
-    bookBody.innerHTML = bookings.map(b => { const [cls,txt] = bMap[b.status]||['sp-pend','-']; return '<tr><td>' + (b.rooms?.title||'-') + '</td><td>' + (b.profiles?.full_name||'-') + '</td><td>' + b.start_date + '</td><td>' + b.duration_months + ' meses</td><td><span class="spill ' + cls + '">' + txt + '</span></td></tr>'; }).join('');
-  } else {
-    bookBody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--gray-400);padding:24px">Sin reservas activas</td></tr>';
+  const roomIds = rooms.map(r => r.id);
+  const roomMap = Object.fromEntries(rooms.map(r => [r.id, r]));
+
+  // Cargar bookings e incidencias en paralelo
+  const [{ data: bookings }, { data: incidents }] = await Promise.all([
+    sb.from('bookings').select('*').in('room_id', roomIds).order('start_date', { ascending: true }),
+    sb.from('incidents').select('*, rooms(title)').in('room_id', roomIds).order('created_at', { ascending: false })
+  ]);
+
+  // Cargar pagos
+  const bookingIds = (bookings || []).map(b => b.id);
+  let payments = [];
+  if (bookingIds.length) {
+    const { data: p } = await sb.from('payments').select('*, booking:booking_id(room_id)')
+      .in('booking_id', bookingIds).eq('status', 'paid').order('created_at', { ascending: true });
+    payments = p || [];
   }
+
+  // ── MÉTRICAS ANUALES ────────────────────────────────────────────────────
+  const now = new Date();
+  const oneYearAgo = new Date(now.getFullYear()-1, now.getMonth(), 1);
+
+  const annualPayments = payments.filter(p => {
+    const d = new Date(p.created_at);
+    return d >= oneYearAgo && d <= now && !p.concept?.includes('Fee');
+  });
+
+  const annualIncome = annualPayments.reduce((s, p) => s + parseFloat(p.amount||0), 0);
+  const annualCommission = Math.round(annualIncome * 0.17);
+  const annualNet = annualIncome - annualCommission;
+  const occupiedNow = rooms.filter(r => r.status !== 'available').length;
+  const avgOccupancy = rooms.length ? Math.round(occupiedNow / rooms.length * 100) : 0;
+
+  document.getElementById('ownerSub').textContent =
+    (currentProfile?.full_name || 'Propietario') + ' · ' + rooms.length + ' habitaciones · Informe anual';
+  document.getElementById('ownerAnnualIncome').textContent = annualIncome.toLocaleString('es-ES') + ' €';
+  document.getElementById('ownerAnnualCommission').textContent = annualCommission.toLocaleString('es-ES') + ' €';
+  document.getElementById('ownerAnnualNet').textContent = annualNet.toLocaleString('es-ES') + ' €';
+  document.getElementById('ownerAvgOccupancy').textContent = avgOccupancy + '%';
+  document.getElementById('ownerOccSub').textContent = occupiedNow + '/' + rooms.length + ' hab. activas ahora';
+
+  // ── DATOS MENSUALES (12 meses) ──────────────────────────────────────────
+  const monthlyData = {};
+  for (let i = 11; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const key = d.toISOString().slice(0,7);
+    const lbl = d.toLocaleDateString('es-ES', { month: 'short', year: '2-digit' });
+    monthlyData[key] = { label: lbl, income: 0, commission: 0, net: 0, incidents: 0, occupied: 0 };
+  }
+
+  payments.forEach(p => {
+    if (p.concept?.includes('Fee')) return;
+    const key = p.created_at?.slice(0,7);
+    if (monthlyData[key]) {
+      monthlyData[key].income += parseFloat(p.amount||0);
+      monthlyData[key].commission = Math.round(monthlyData[key].income * 0.17);
+      monthlyData[key].net = monthlyData[key].income - monthlyData[key].commission;
+    }
+  });
+
+  (incidents||[]).forEach(inc => {
+    const key = inc.created_at?.slice(0,7);
+    if (monthlyData[key]) monthlyData[key].incidents++;
+  });
+
+  // Ocupación por mes: contar habitaciones con reserva activa ese mes
+  Object.keys(monthlyData).forEach(key => {
+    const [yr, mo] = key.split('-').map(Number);
+    const mStart = new Date(yr, mo-1, 1);
+    const mEnd   = new Date(yr, mo, 0);
+    monthlyData[key].occupied = (bookings||[]).filter(b => {
+      if (b.status === 'cancelled') return false;
+      const s = new Date(b.start_date);
+      const e = new Date(b.start_date);
+      e.setMonth(e.getMonth() + (b.duration_months||12));
+      return s <= mEnd && e >= mStart;
+    }).length;
+  });
+
+  ownerMonthlyDataCache = { monthlyData, rooms, payments, incidents };
+
+  // ── GRÁFICO ─────────────────────────────────────────────────────────────
+  document.getElementById('ownerChart').innerHTML = renderOwnerChart(monthlyData);
+
+  // ── TABLA HABITACIONES ───────────────────────────────────────────────────
+  const roomIncome = {};
+  roomIds.forEach(id => { roomIncome[id] = { income: 0, months: 0 }; });
+  payments.forEach(p => {
+    if (p.concept?.includes('Fee')) return;
+    const roomId = p.booking?.room_id;
+    if (roomId && roomIncome[roomId]) {
+      roomIncome[roomId].income += parseFloat(p.amount||0);
+      roomIncome[roomId].months++;
+    }
+  });
+
+  const sMap = { available: ['sp-ok','Disponible'], reserved: ['sp-pend','Reservada'], occupied: ['sp-late','Ocupada'] };
+  document.getElementById('ownerRoomsBody').innerHTML = rooms.map(r => {
+    const [cls, txt] = sMap[r.status] || ['sp-pend','-'];
+    const ri = roomIncome[r.id] || { income: 0, months: 0 };
+    const occ = Math.round(ri.months / 12 * 100);
+    return '<tr>' +
+      '<td><strong>' + r.title + '</strong></td>' +
+      '<td>' + (r.city||r.zone) + '</td>' +
+      '<td>' + r.price + ' €</td>' +
+      '<td><span class="spill ' + cls + '">' + txt + '</span></td>' +
+      '<td><div style="display:flex;align-items:center;gap:8px">' +
+        '<div class="occ-bar"><div class="occ-fill" style="width:' + occ + '%"></div></div>' +
+        '<span style="font-size:12px;color:var(--gray-500)">' + occ + '%</span></div></td>' +
+      '<td><strong>' + ri.income.toLocaleString('es-ES') + ' €</strong></td>' +
+      '</tr>';
+  }).join('');
+
+  // ── TABLA INFORMES MENSUALES ─────────────────────────────────────────────
+  const entries = Object.entries(monthlyData).reverse();
+  document.getElementById('ownerMonthlyBody').innerHTML = entries.map(([key, v]) => {
+    const [yr, mo] = key.split('-');
+    const monthName = new Date(parseInt(yr), parseInt(mo)-1, 1)
+      .toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
+    const hasData = v.income > 0;
+    const incBadge = v.incidents > 0
+      ? '<span class="spill sp-pend">' + v.incidents + ' inc.</span>'
+      : '<span style="color:var(--gray-400)">Ninguna</span>';
+    return '<tr>' +
+      '<td><strong style="text-transform:capitalize">' + monthName + '</strong></td>' +
+      '<td>' + (hasData ? v.income.toLocaleString('es-ES') + ' €' : '—') + '</td>' +
+      '<td style="color:var(--pink)">' + (hasData ? '- ' + v.commission.toLocaleString('es-ES') + ' €' : '—') + '</td>' +
+      '<td><strong style="color:var(--green)">' + (hasData ? v.net.toLocaleString('es-ES') + ' €' : '—') + '</strong></td>' +
+      '<td>' + (hasData ? v.occupied + '/' + rooms.length : '—') + '</td>' +
+      '<td>' + incBadge + '</td>' +
+      '<td>' + (hasData
+        ? '<button class="action-btn btn-edit" onclick="generateMonthlyPDF(&quot;' + key + '&quot;)">&#11015; PDF</button>'
+        : '—') + '</td>' +
+      '</tr>';
+  }).join('');
+
+  // ── INCIDENCIAS ──────────────────────────────────────────────────────────
+  const resolved = (incidents||[]).filter(i => i.status === 'resolved');
+  const openInc  = (incidents||[]).filter(i => i.status !== 'resolved');
+  document.getElementById('incResolved').textContent = resolved.length;
+  document.getElementById('incOpen').textContent = openInc.length;
+
+  // Tiempo medio resolución en días
+  const times = resolved
+    .filter(i => i.resolved_at)
+    .map(i => (new Date(i.resolved_at) - new Date(i.created_at)) / 86400000);
+  const avgDays = times.length ? Math.round(times.reduce((a,b) => a+b, 0) / times.length) : '-';
+  document.getElementById('incAvgTime').textContent = avgDays;
+
+  const incSMap = {
+    open:        ['sp-pend', 'Abierta'],
+    in_progress: ['sp-ok',   'En gestion'],
+    resolved:    ['sp-ok',   'Resuelta'],
+  };
+  document.getElementById('ownerIncidentsBody').innerHTML = (incidents||[]).length
+    ? (incidents||[]).map(inc => {
+        const [cls, txt] = incSMap[inc.status] || ['sp-pend','-'];
+        const date = new Date(inc.created_at).toLocaleDateString('es-ES', { day:'numeric', month:'short', year:'numeric' });
+        const resDate = inc.resolved_at
+          ? 'Resuelto el ' + new Date(inc.resolved_at).toLocaleDateString('es-ES', { day:'numeric', month:'short' })
+          : '<span style="color:var(--gray-400)">Pendiente</span>';
+        return '<tr>' +
+          '<td style="font-size:13px">' + date + '</td>' +
+          '<td><strong>' + inc.title + '</strong><br>' +
+          '<span style="font-size:12px;color:var(--gray-400)">' + (inc.description||'').slice(0,60) + '...</span></td>' +
+          '<td style="font-size:13px">' + (inc.rooms?.title||'-') + '</td>' +
+          '<td><span class="spill ' + cls + '">' + txt + '</span></td>' +
+          '<td style="font-size:13px">' + resDate + '</td>' +
+          '</tr>';
+      }).join('')
+    : '<tr><td colspan="5" style="text-align:center;padding:24px;color:var(--gray-400)">Sin incidencias</td></tr>';
 }
+
+function setOwnerTab(name, el) {
+  document.querySelectorAll('.otc').forEach(t => t.classList.remove('on'));
+  document.querySelectorAll('.tabs-bar .dtab').forEach(t => t.classList.remove('on'));
+  document.getElementById('otc-' + name)?.classList.add('on');
+  if (el) el.classList.add('on');
+}
+
+function renderOwnerChart(monthlyData) {
+  const entries = Object.entries(monthlyData);
+  const maxIncome = Math.max(...entries.map(([,v]) => v.income), 100);
+  const chartH = 140; const barW = 28; const gap = 8; const padL = 48; const padB = 30;
+  const totalW = padL + entries.length * (barW + gap) + 20;
+
+  const gridVals = [0.25, 0.5, 0.75, 1];
+  const gridLines = gridVals.map(pct => {
+    const y = chartH - Math.round(pct * chartH);
+    const val = Math.round(pct * maxIncome);
+    return '<line x1="' + padL + '" y1="' + y + '" x2="' + (totalW-10) + '" y2="' + y + '" stroke="rgba(12,12,11,0.06)" stroke-dasharray="3"/>' +
+      '<text x="' + (padL-5) + '" y="' + (y+4) + '" text-anchor="end" font-size="9" fill="#ACACAA">' +
+      (val >= 1000 ? (val/1000).toFixed(1) + 'k' : val) + '€</text>';
+  }).join('');
+
+  const bars = entries.map(([key, v], i) => {
+    const h = v.income > 0 ? Math.max(4, Math.round(v.income / maxIncome * chartH)) : 0;
+    const hNet = v.net > 0 ? Math.round(v.net / maxIncome * chartH) : 0;
+    const x = padL + i * (barW + gap);
+    const yBar = chartH - h;
+    const yNet = chartH - hNet;
+    return '<g>' +
+      '<rect x="' + x + '" y="' + yBar + '" width="' + barW + '" height="' + h + '" rx="4" fill="#F0135E" opacity="' + (h > 0 ? '0.8' : '0.15') + '"/>' +
+      (hNet > 0 ? '<rect x="' + x + '" y="' + yNet + '" width="' + barW + '" height="' + hNet + '" rx="4" fill="#1A7A4A" opacity="0.35"/>' : '') +
+      '<text x="' + (x + barW/2) + '" y="' + (chartH + 18) + '" text-anchor="middle" font-size="8.5" fill="#ACACAA">' + v.label + '</text>' +
+      (h > 18 ? '<text x="' + (x + barW/2) + '" y="' + (yBar - 3) + '" text-anchor="middle" font-size="8" fill="#6B6B69" font-weight="600">' +
+        (v.income >= 1000 ? (v.income/1000).toFixed(1) + 'k' : v.income) + '</text>' : '') +
+      '</g>';
+  }).join('');
+
+  return '<div style="background:var(--white);border:1px solid var(--border);border-radius:var(--r-lg);padding:20px 16px">' +
+    '<div style="display:flex;gap:20px;margin-bottom:12px;flex-wrap:wrap">' +
+      '<div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--gray-500)">' +
+        '<div style="width:10px;height:10px;border-radius:2px;background:#F0135E;opacity:0.8"></div>Ingreso bruto</div>' +
+      '<div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--gray-500)">' +
+        '<div style="width:10px;height:10px;border-radius:2px;background:#1A7A4A;opacity:0.5"></div>Neto (tras comision)</div>' +
+    '</div>' +
+    '<svg viewBox="0 0 ' + totalW + ' ' + (chartH + padB) + '" style="width:100%;max-height:200px;overflow:visible">' +
+    gridLines + bars + '</svg></div>';
+}
+
+function generateMonthlyPDF(key) {
+  const cache = ownerMonthlyDataCache;
+  const v = cache.monthlyData?.[key];
+  if (!v) { toast('Datos no disponibles'); return; }
+  const [yr, mo] = key.split('-');
+  const monthName = new Date(parseInt(yr), parseInt(mo)-1, 1)
+    .toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
+  const rooms = cache.rooms || [];
+  const payments = (cache.payments||[]).filter(p =>
+    p.created_at?.slice(0,7) === key && !p.concept?.includes('Fee'));
+
+  const payRows = payments.map(p =>
+    '<tr><td>' + (p.concept||'Renta') + '</td><td style="text-align:right"><strong>' +
+    parseFloat(p.amount||0).toLocaleString('es-ES') + ' €</strong></td></tr>').join('');
+
+  const incList = (cache.incidents||[])
+    .filter(inc => inc.created_at?.slice(0,7) === key)
+    .map(inc => '<li>' + inc.title + ' — <em>' + (inc.status==='resolved'?'Resuelta':'En gestion') + '</em></li>')
+    .join('');
+
+  const html = '<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8">' +
+    '<title>Informe ' + monthName + ' — Beromie</title><style>' +
+    '*{box-sizing:border-box;margin:0;padding:0}' +
+    'body{font-family:Arial,sans-serif;color:#0C0C0B;padding:40px;max-width:680px;margin:0 auto}' +
+    '.logo{font-size:28px;font-weight:900;color:#F0135E;letter-spacing:-1px}' +
+    '.logo em{color:#0C0C0B;font-style:normal}' +
+    '.header{border-bottom:3px solid #F0135E;padding-bottom:18px;margin-bottom:24px}' +
+    '.title{font-size:19px;font-weight:700;color:#3D3D3C;margin-top:6px;text-transform:capitalize}' +
+    '.sub{font-size:13px;color:#8C8C8A;margin-top:3px}' +
+    '.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:28px}' +
+    '.kpi{background:#F8F8F6;border:1px solid #E8E8E6;border-radius:10px;padding:14px 16px}' +
+    '.kpi-lbl{font-size:11px;color:#8C8C8A;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:5px}' +
+    '.kpi-val{font-size:24px;font-weight:800}' +
+    '.green{color:#1A7A4A}.pink{color:#F0135E}' +
+    'h3{font-size:14px;font-weight:700;margin:20px 0 10px;border-bottom:1px solid #E8E8E6;padding-bottom:6px}' +
+    'table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:16px}' +
+    'th{background:#F2F2F0;padding:9px 12px;text-align:left;font-size:11px;color:#8C8C8A;text-transform:uppercase}' +
+    'td{padding:9px 12px;border-bottom:1px solid #F2F2F0}' +
+    '.tot{background:#EDFAF4;font-weight:700}' +
+    '.info-box{background:#FFF0F5;border:1px solid #FFD6E7;border-radius:10px;padding:14px 16px;margin-top:20px}' +
+    '.info-box p{font-size:12px;color:#6B6B69;line-height:1.7}' +
+    '.footer{margin-top:32px;padding-top:16px;border-top:1px solid #E8E8E6;display:flex;justify-content:space-between;font-size:11px;color:#ACACAA}' +
+    '@media print{body{padding:20px}}' +
+    '</style></head><body>' +
+    '<div class="header">' +
+      '<div class="logo">Be<em>romie</em></div>' +
+      '<div class="title">Informe de gestion — ' + monthName + '</div>' +
+      '<div class="sub">Generado el ' + new Date().toLocaleDateString('es-ES') + ' · propietario@beromie.es</div>' +
+    '</div>' +
+    '<div class="kpis">' +
+      '<div class="kpi"><div class="kpi-lbl">Ingresos brutos</div><div class="kpi-val">' + v.income.toLocaleString('es-ES') + ' €</div></div>' +
+      '<div class="kpi"><div class="kpi-lbl">Comision Beromie (17%)</div><div class="kpi-val pink">- ' + v.commission.toLocaleString('es-ES') + ' €</div></div>' +
+      '<div class="kpi"><div class="kpi-lbl">Neto transferido</div><div class="kpi-val green">' + v.net.toLocaleString('es-ES') + ' €</div></div>' +
+    '</div>' +
+    '<h3>Detalle de rentas cobradas</h3>' +
+    '<table><thead><tr><th>Concepto</th><th style="text-align:right">Importe</th></tr></thead><tbody>' +
+    (payRows || '<tr><td colspan="2" style="color:#ACACAA;text-align:center">Sin pagos este mes</td></tr>') +
+    '<tr class="tot"><td>Comision gestion Beromie (17%)</td><td style="text-align:right;color:#F0135E">- ' + v.commission.toLocaleString('es-ES') + ' €</td></tr>' +
+    '<tr class="tot"><td><strong>Neto a transferir</strong></td><td style="text-align:right;color:#1A7A4A"><strong>' + v.net.toLocaleString('es-ES') + ' €</strong></td></tr>' +
+    '</tbody></table>' +
+    '<h3>Habitaciones (' + v.occupied + '/' + rooms.length + ' ocupadas este mes)</h3>' +
+    '<table><thead><tr><th>Habitacion</th><th>Ciudad</th><th>Renta/mes</th></tr></thead><tbody>' +
+    rooms.map(r => '<tr><td>' + r.title + '</td><td>' + (r.city||r.zone) + '</td><td>' + r.price + ' €</td></tr>').join('') +
+    '</tbody></table>' +
+    (incList
+      ? '<h3>Incidencias del mes (' + v.incidents + ')</h3><ul style="padding-left:18px;font-size:13px;color:#6B6B69;line-height:2">' + incList + '</ul>'
+      : '<h3>Incidencias del mes</h3><p style="font-size:13px;color:#6B6B69">&#10003; Sin incidencias este mes.</p>') +
+    '<div class="info-box"><p><strong>La gestion Beromie incluye:</strong> cobro automatizado de rentas · gestion de incidencias 24/7 · ' +
+    'verificacion de inquilinos · contratos homologados · reportes mensuales · soporte legal · ' +
+    'coordinacion de mantenimiento y reparaciones.</p></div>' +
+    '<div class="footer"><span>Beromie · hola@beromie.es · beromie.es</span><span>Informe generado automaticamente</span></div>' +
+    '<script>window.onload=()=>window.print();</' + 'script></body></html>';
+
+  const w = window.open('', '_blank');
+  if (w) { w.document.write(html); w.document.close(); }
+  else toast('Activa las ventanas emergentes para descargar el PDF');
+}
+
+function generateAnnualReport() {
+  const cache = ownerMonthlyDataCache;
+  if (!cache.monthlyData) { toast('Carga el panel primero'); return; }
+  const rooms = cache.rooms || [];
+  const md = cache.monthlyData;
+  const entries = Object.entries(md);
+  const totalIncome = entries.reduce((s,[,v]) => s + v.income, 0);
+  const totalCommission = Math.round(totalIncome * 0.17);
+  const totalNet = totalIncome - totalCommission;
+  const totalInc = entries.reduce((s,[,v]) => s + v.incidents, 0);
+  const avgOcc = Math.round(entries.filter(([,v]) => v.income > 0).length / 12 * 100);
+
+  const monthRows = entries.reverse().map(([key, v]) => {
+    const [yr, mo] = key.split('-');
+    const mName = new Date(parseInt(yr), parseInt(mo)-1, 1)
+      .toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
+    return '<tr><td style="text-transform:capitalize">' + mName + '</td>' +
+      '<td style="text-align:right">' + (v.income > 0 ? v.income.toLocaleString('es-ES') + ' €' : '—') + '</td>' +
+      '<td style="text-align:right;color:#F0135E">' + (v.commission > 0 ? '- ' + v.commission.toLocaleString('es-ES') + ' €' : '—') + '</td>' +
+      '<td style="text-align:right;color:#1A7A4A;font-weight:700">' + (v.net > 0 ? v.net.toLocaleString('es-ES') + ' €' : '—') + '</td>' +
+      '<td style="text-align:center">' + (v.income > 0 ? v.occupied + '/' + rooms.length : '—') + '</td>' +
+      '<td style="text-align:center">' + (v.incidents > 0 ? v.incidents : '—') + '</td>' +
+      '</tr>';
+  }).join('');
+
+  const html = '<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8">' +
+    '<title>Informe Anual — Beromie</title><style>' +
+    '*{box-sizing:border-box;margin:0;padding:0}' +
+    'body{font-family:Arial,sans-serif;color:#0C0C0B;padding:40px;max-width:780px;margin:0 auto}' +
+    '.logo{font-size:28px;font-weight:900;color:#F0135E;letter-spacing:-1px}' +
+    '.logo em{color:#0C0C0B;font-style:normal}' +
+    '.header{border-bottom:3px solid #F0135E;padding-bottom:18px;margin-bottom:28px}' +
+    '.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:28px}' +
+    '.kpi{background:#F8F8F6;border:1px solid #E8E8E6;border-radius:10px;padding:14px 16px}' +
+    '.kpi-lbl{font-size:10px;color:#8C8C8A;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:5px}' +
+    '.kpi-val{font-size:22px;font-weight:800}' +
+    '.green{color:#1A7A4A}.pink{color:#F0135E}' +
+    'h3{font-size:14px;font-weight:700;margin:0 0 10px;border-bottom:1px solid #E8E8E6;padding-bottom:6px}' +
+    'table{width:100%;border-collapse:collapse;font-size:13px}' +
+    'th{background:#F2F2F0;padding:9px 12px;text-align:left;font-size:10px;color:#8C8C8A;text-transform:uppercase}' +
+    'td{padding:9px 12px;border-bottom:1px solid #F2F2F0}' +
+    '.total-row{background:#EDFAF4;font-weight:700}' +
+    '.footer{margin-top:32px;padding-top:16px;border-top:1px solid #E8E8E6;display:flex;justify-content:space-between;font-size:11px;color:#ACACAA}' +
+    '@media print{body{padding:20px}}' +
+    '</style></head><body>' +
+    '<div class="header">' +
+      '<div class="logo">Be<em>romie</em></div>' +
+      '<div style="font-size:19px;font-weight:700;margin-top:6px">Informe anual de gestion</div>' +
+      '<div style="font-size:13px;color:#8C8C8A;margin-top:3px">Generado el ' + new Date().toLocaleDateString('es-ES') + ' · ' + rooms.length + ' habitaciones gestionadas</div>' +
+    '</div>' +
+    '<div class="kpis">' +
+      '<div class="kpi"><div class="kpi-lbl">Ingresos anuales</div><div class="kpi-val">' + totalIncome.toLocaleString('es-ES') + ' €</div></div>' +
+      '<div class="kpi"><div class="kpi-lbl">Comision total (17%)</div><div class="kpi-val pink">' + totalCommission.toLocaleString('es-ES') + ' €</div></div>' +
+      '<div class="kpi"><div class="kpi-lbl">Neto recibido</div><div class="kpi-val green">' + totalNet.toLocaleString('es-ES') + ' €</div></div>' +
+      '<div class="kpi"><div class="kpi-lbl">Incidencias totales</div><div class="kpi-val">' + totalInc + '</div></div>' +
+    '</div>' +
+    '<h3>Detalle mensual</h3>' +
+    '<table><thead><tr><th>Mes</th><th style="text-align:right">Bruto</th><th style="text-align:right">Comision</th>' +
+    '<th style="text-align:right">Neto</th><th style="text-align:center">Hab. ocupadas</th><th style="text-align:center">Incidencias</th></tr></thead>' +
+    '<tbody>' + monthRows +
+    '<tr class="total-row"><td><strong>TOTAL ANUAL</strong></td>' +
+    '<td style="text-align:right"><strong>' + totalIncome.toLocaleString('es-ES') + ' €</strong></td>' +
+    '<td style="text-align:right;color:#F0135E"><strong>- ' + totalCommission.toLocaleString('es-ES') + ' €</strong></td>' +
+    '<td style="text-align:right;color:#1A7A4A"><strong>' + totalNet.toLocaleString('es-ES') + ' €</strong></td>' +
+    '<td style="text-align:center">—</td><td style="text-align:center">' + totalInc + '</td></tr>' +
+    '</tbody></table>' +
+    '<div class="footer"><span>Beromie · hola@beromie.es · beromie.es</span><span>Informe anual generado automaticamente</span></div>' +
+    '<script>window.onload=()=>window.print();</' + 'script></body></html>';
+
+  const w = window.open('', '_blank');
+  if (w) { w.document.write(html); w.document.close(); }
+  else toast('Activa las ventanas emergentes para descargar el PDF');
+}
+
 
 function go(name) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -1800,115 +2202,6 @@ async function sendContactForm(e) {
   }
 }
 
-// ── MODO DEMO (sin autenticación — datos hardcoded para máxima fiabilidad) ──
-let isDemoMode = false;
-
-function enterDemoMode(btnEl) {
-  // Datos demo fijos — no depende de auth ni de DB
-  const DEMO_ROOMS = [
-    { title: 'Habitación luminosa junto a la UMU',          city: 'Espinardo', price: '295', cls: 'sp-late',  status: 'Ocupada'     },
-    { title: 'Habitación premium con baño propio – La Flota', city: 'La Flota',  price: '420', cls: 'sp-ok',   status: 'Disponible'  },
-    { title: 'Loft en edificio histórico reformado – Centro', city: 'Centro',    price: '490', cls: 'sp-ok',   status: 'Disponible'  },
-    { title: 'Exterior con vistas y A/C – El Carmen',        city: 'El Carmen', price: '380', cls: 'sp-pend', status: 'Reservada'   },
-  ];
-  const DEMO_BOOKINGS = [
-    { room: 'Habitación luminosa junto a la UMU',          tenant: 'Ana García López', date: '2026-02-01', dur: '9 meses',  cls: 'sp-ok',   status: 'Confirmada' },
-    { room: 'Exterior con vistas y A/C – El Carmen',        tenant: 'Ana García López', date: '2026-05-01', dur: '6 meses',  cls: 'sp-pend', status: 'Pendiente'  },
-  ];
-
-  isDemoMode = true;
-
-  // 1. Topbar: avatar y ocultar botones de sesión
-  const avatar = document.getElementById('userAvatar');
-  if (avatar) { avatar.textContent = 'DP'; avatar.style.display = 'flex'; }
-  document.getElementById('btnLogin').style.display = 'none';
-  document.getElementById('btnDemo').style.display = 'none';
-  const menuDash = document.getElementById('menuDashboard');
-  if (menuDash) { menuDash.textContent = 'Panel propietario'; menuDash.onclick = () => {}; }
-
-  // 2. Navegar al panel propietario (sin llamar go() para no triggear loadOwnerDashboard)
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('.tnav').forEach(b => b.classList.remove('on'));
-  document.getElementById('screen-owner').classList.add('active');
-  document.getElementById('nb-owner')?.classList.add('on');
-  window.scrollTo(0, 0);
-
-  // 3. Rellenar métricas
-  const totalRent = DEMO_ROOMS.reduce((s, r) => s + parseInt(r.price), 0);
-  const occupied  = DEMO_ROOMS.filter(r => r.status !== 'Disponible').length;
-  const commission = Math.round(totalRent * 0.17);
-  document.getElementById('ownerSub').textContent       = 'Demo Propietario — Panel de gestión';
-  document.getElementById('ownerIncome').textContent    = totalRent + ' EUR';
-  document.getElementById('ownerOccupancy').textContent = Math.round(occupied / DEMO_ROOMS.length * 100) + '%';
-  document.getElementById('ownerOccSub').textContent    = occupied + '/' + DEMO_ROOMS.length + ' habitaciones';
-  document.getElementById('ownerCommission').textContent = commission + ' EUR';
-  document.getElementById('ownerNet').textContent        = (totalRent - commission) + ' EUR';
-
-  // 4. Tabla de habitaciones
-  document.getElementById('ownerRoomsBody').innerHTML = DEMO_ROOMS.map(r =>
-    '<tr><td><strong>' + r.title + '</strong></td><td>' + r.city + '</td><td>' + r.price + ' EUR</td>' +
-    '<td><span class="spill ' + r.cls + '">' + r.status + '</span></td></tr>'
-  ).join('');
-
-  // 5. Tabla de reservas
-  document.getElementById('ownerBookingsBody').innerHTML = DEMO_BOOKINGS.map(b =>
-    '<tr><td>' + b.room + '</td><td>' + b.tenant + '</td><td>' + b.date + '</td>' +
-    '<td>' + b.dur + '</td><td><span class="spill ' + b.cls + '">' + b.status + '</span></td></tr>'
-  ).join('');
-
-  // 6. Banner demo
-  showDemoBanner();
-
-  toast('Bienvenido al panel de demostración de Beromie');
-}
-
-function showDemoBanner() {
-  if (document.getElementById('demoBanner')) return;
-  const banner = document.createElement('div');
-  banner.id = 'demoBanner';
-  banner.className = 'demo-banner';
-  banner.innerHTML =
-    '<div class="demo-banner-txt">' +
-      '<span class="demo-pill">DEMO</span>' +
-      '<div><strong>Panel de demostración</strong> — 4 habitaciones reales, reservas, pagos e incidencias de ejemplo.</div>' +
-    '</div>' +
-    '<div class="demo-banner-actions">' +
-      '<button class="demo-cta-btn" onclick="exitDemoMode();openModal();setModalTab(&quot;register&quot;)">Crear mi cuenta gratis</button>' +
-      '<button class="demo-exit-btn" onclick="exitDemoMode()">Salir del demo</button>' +
-    '</div>';
-  document.body.appendChild(banner);
-  document.body.style.paddingBottom = '52px';
-}
-
-function exitDemoMode() {
-  isDemoMode = false;
-  const banner = document.getElementById('demoBanner');
-  if (banner) { banner.remove(); document.body.style.paddingBottom = ''; }
-  // Restaurar topbar
-  document.getElementById('userAvatar').style.display = 'none';
-  document.getElementById('btnLogin').style.display = 'flex';
-  document.getElementById('btnDemo').style.display = 'flex';
-  // Volver a landing
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('.tnav').forEach(b => b.classList.remove('on'));
-  document.getElementById('screen-landing').classList.add('active');
-  document.getElementById('nb-landing')?.classList.add('on');
-  window.scrollTo(0, 0);
-  toast('Has salido del modo demo');
-}
-
-// ── CONFIRMACIÓN MANUAL DE PAGO EN ADMIN ─────────────────────────────────
-async function confirmPaymentManual(bookingId, btn) {
-  if (btn) { btn.textContent = 'Confirmando...'; btn.disabled = true; }
-  const { error } = await sb.from('bookings').update({
-    status: 'confirmed',
-    fee_paid: true,
-    subscription_status: 'manual'
-  }).eq('id', bookingId);
-  if (error) { toast('Error: ' + error.message); if(btn){btn.textContent='Marcar pagado';btn.disabled=false;} return; }
-  toast('Reserva confirmada y pago registrado manualmente');
-  loadAdminDashboard();
-}
 
 let toastTimer;
 function toast(msg) {
