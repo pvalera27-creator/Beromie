@@ -339,7 +339,7 @@ tr:hover td{background:var(--gray-50)}
   </nav>
   <div class="topbar-right" style="position:relative">
     <div class="bell" id="bellBtn">&#128276;<div class="bell-dot" id="bellDot"></div></div>
-    <button class="btn-demo" id="btnDemo" onclick="enterDemoMode()" title="Ver demo para propietarios">&#9654; Demo propietario</button>
+    <button class="btn-demo" id="btnDemo" onclick="enterDemoMode(this)" title="Ver demo para propietarios">&#9654; Demo propietario</button>
     <button class="btn-login" id="btnLogin" onclick="openModal()">Entrar</button>
     <button class="pill" id="btnReservar" onclick="go('landing');setTimeout(scrollToRooms,100)">Ver habitaciones</button>
     <div class="user-avatar" id="userAvatar" onclick="toggleUserMenu()"></div>
@@ -363,7 +363,7 @@ tr:hover td{background:var(--gray-50)}
         <button class="btn-ghost" onclick="openModal()">Crear cuenta gratis</button>
       </div>
       <div style="margin-top:16px">
-        <button class="btn-demo-hero" onclick="enterDemoMode()">
+        <button class="btn-demo-hero" onclick="enterDemoMode(this)">
           &#9654; Ver demo para propietarios
         </button>
         <div style="font-size:12px;color:var(--gray-400);margin-top:8px">Explora el panel de control como propietario</div>
@@ -1803,29 +1803,54 @@ async function sendContactForm(e) {
 // ── MODO DEMO ────────────────────────────────────────────────────────────
 let isDemoMode = false;
 
-async function enterDemoMode() {
-  const btn = event?.target;
-  if (btn) { btn.textContent = 'Cargando demo...'; btn.disabled = true; }
+async function enterDemoMode(btnEl) {
+  // Deshabilitar todos los botones demo mientras carga
+  document.querySelectorAll('.btn-demo, .btn-demo-hero').forEach(b => {
+    b._origText = b.textContent;
+    b.textContent = 'Cargando...';
+    b.disabled = true;
+  });
+
+  const resetBtns = () => {
+    document.querySelectorAll('.btn-demo, .btn-demo-hero').forEach(b => {
+      b.textContent = b._origText || '▶ Demo propietario';
+      b.disabled = false;
+    });
+  };
 
   try {
-    // Login automático con credenciales demo
     const { data, error } = await sb.auth.signInWithPassword({
       email: 'demo@beromie.es',
       password: 'Demo2025!'
     });
-    if (error) { toast('Error al cargar el demo: ' + error.message); if(btn){btn.textContent='▶ Demo propietario';btn.disabled=false;} return; }
+
+    if (error) {
+      console.error('Demo login error:', error);
+      toast('Error al cargar el demo: ' + error.message);
+      resetBtns();
+      return;
+    }
 
     currentUser = data.user;
     isDemoMode = true;
+
+    // Cargar perfil antes de actualizar UI
     await loadProfile();
     updateUIForAuth();
+
+    // Ir al panel de propietario
     go('owner');
     await loadOwnerDashboard();
+
+    // Mostrar banner demo
     showDemoBanner();
-    toast('Bienvenido al panel de demostración de propietario');
+    resetBtns();
+    toast('Bienvenido al panel de demostración de Beromie');
+
   } catch(err) {
-    toast('Error al cargar el demo');
-    if(btn){btn.textContent='▶ Demo propietario';btn.disabled=false;}
+    console.error('enterDemoMode error:', err);
+    toast('Error inesperado al cargar el demo');
+    resetBtns();
   }
 }
 
