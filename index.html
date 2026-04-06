@@ -41,6 +41,19 @@ body{font-family:'Outfit',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif
 .bell-dot{position:absolute;top:6px;right:6px;width:7px;height:7px;border-radius:50%;background:var(--pink);border:2px solid var(--white);display:none}
 .btn-login{padding:7px 16px;border-radius:99px;font-size:13px;font-weight:500;background:none;color:var(--gray-700);border:1px solid var(--border-md);cursor:pointer;font-family:'Outfit',sans-serif;transition:var(--t)}
 .btn-login:hover{border-color:var(--pink);color:var(--pink)}
+.btn-demo{padding:7px 16px;border-radius:99px;font-size:13px;font-weight:700;background:var(--black);color:var(--white);border:none;cursor:pointer;font-family:'Outfit',sans-serif;transition:var(--t);display:flex;align-items:center;gap:6px}
+.btn-demo:hover{background:var(--gray-700);transform:translateY(-1px)}
+.btn-demo-hero{padding:12px 28px;border-radius:99px;font-size:14px;font-weight:700;background:var(--black);color:var(--white);border:none;cursor:pointer;font-family:'Outfit',sans-serif;transition:var(--t);display:inline-flex;align-items:center;gap:8px;box-shadow:0 4px 16px rgba(0,0,0,0.15)}
+.btn-demo-hero:hover{background:var(--gray-700);transform:translateY(-1px)}
+.demo-banner{position:fixed;bottom:0;left:0;right:0;z-index:200;background:linear-gradient(90deg,#0C0C0B 0%,#1A1A19 100%);color:var(--white);padding:10px 24px;display:flex;align-items:center;justify-content:space-between;gap:12px;border-top:1px solid rgba(255,255,255,0.1)}
+.demo-banner-txt{font-size:13px;color:rgba(255,255,255,0.7);display:flex;align-items:center;gap:8px}
+.demo-banner-txt strong{color:var(--white)}
+.demo-banner-txt .demo-pill{background:var(--pink);color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:99px;letter-spacing:0.5px}
+.demo-banner-actions{display:flex;gap:8px;align-items:center}
+.demo-exit-btn{padding:6px 16px;border-radius:99px;font-size:12px;font-weight:600;background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.8);border:1px solid rgba(255,255,255,0.2);cursor:pointer;font-family:'Outfit',sans-serif;transition:var(--t)}
+.demo-exit-btn:hover{background:rgba(255,255,255,0.2);color:#fff}
+.demo-cta-btn{padding:6px 16px;border-radius:99px;font-size:12px;font-weight:700;background:var(--pink);color:#fff;border:none;cursor:pointer;font-family:'Outfit',sans-serif;transition:var(--t)}
+.demo-cta-btn:hover{background:var(--pink-vivid)}
 .pill{padding:8px 18px;border-radius:99px;font-size:13px;font-weight:600;background:var(--pink);color:var(--white);border:none;cursor:pointer;font-family:'Outfit',sans-serif;transition:var(--t)}
 .pill:hover{background:var(--pink-vivid);transform:translateY(-1px);box-shadow:0 4px 16px rgba(240,19,94,0.3)}
 .user-avatar{width:34px;height:34px;border-radius:50%;background:var(--pink-mid);color:var(--pink-dark);font-size:13px;font-weight:700;display:none;align-items:center;justify-content:center;cursor:pointer;border:2px solid var(--white);box-shadow:var(--shadow-sm)}
@@ -326,6 +339,7 @@ tr:hover td{background:var(--gray-50)}
   </nav>
   <div class="topbar-right" style="position:relative">
     <div class="bell" id="bellBtn">&#128276;<div class="bell-dot" id="bellDot"></div></div>
+    <button class="btn-demo" id="btnDemo" onclick="enterDemoMode()" title="Ver demo para propietarios">&#9654; Demo propietario</button>
     <button class="btn-login" id="btnLogin" onclick="openModal()">Entrar</button>
     <button class="pill" id="btnReservar" onclick="go('landing');setTimeout(scrollToRooms,100)">Ver habitaciones</button>
     <div class="user-avatar" id="userAvatar" onclick="toggleUserMenu()"></div>
@@ -347,6 +361,12 @@ tr:hover td{background:var(--gray-50)}
       <div class="hero-actions">
         <button class="btn-primary" onclick="scrollToRooms()">Buscar habitacion</button>
         <button class="btn-ghost" onclick="openModal()">Crear cuenta gratis</button>
+      </div>
+      <div style="margin-top:16px">
+        <button class="btn-demo-hero" onclick="enterDemoMode()">
+          &#9654; Ver demo para propietarios
+        </button>
+        <div style="font-size:12px;color:var(--gray-400);margin-top:8px">Explora el panel de control como propietario</div>
       </div>
       <div class="hero-stats">
         <div><div class="hstat-n" id="stat-rooms"><em>-</em></div><div class="hstat-l">Habitaciones activas</div></div>
@@ -1069,6 +1089,8 @@ function updateUIForAuth() {
   avatar.textContent = initials;
   avatar.style.display = 'flex';
   document.getElementById('btnLogin').style.display = 'none';
+  const demoBtn = document.getElementById('btnDemo');
+  if (demoBtn) demoBtn.style.display = 'none';
   document.getElementById('bellDot').style.display = 'block';
   const adminBtn = document.getElementById('nb-admin');
   if (adminBtn) adminBtn.style.display = currentProfile?.role === 'admin' ? 'flex' : 'none';
@@ -1085,6 +1107,8 @@ function updateUIForAuth() {
 function updateUIForGuest() {
   document.getElementById('userAvatar').style.display = 'none';
   document.getElementById('btnLogin').style.display = 'flex';
+  const demoBtnG = document.getElementById('btnDemo');
+  if (demoBtnG && !isDemoMode) demoBtnG.style.display = 'flex';
   document.getElementById('bellDot').style.display = 'none';
   document.getElementById('userMenu').classList.remove('open');
 }
@@ -1632,9 +1656,12 @@ async function loadAdminDashboard() {
     bBody.innerHTML = bookings.map(b => {
       const [cls, txt] = bMap[b.status] || ['sp-pend','-'];
       const date = new Date(b.created_at).toLocaleDateString('es-ES', { day:'numeric', month:'short', year:'numeric' });
+      const payBtn = (!b.fee_paid && b.status === 'confirmed')
+        ? ' <button class="action-btn btn-edit" onclick="confirmPaymentManual(\'' + b.id + '\', this)">Marcar pagado</button>'
+        : '';
       const actions = b.status === 'pending'
         ? '<button class="action-btn btn-confirm" onclick="updateBookingStatus(\'' + b.id + '\',\'confirmed\')">Confirmar</button> <button class="action-btn btn-cancel" onclick="updateBookingStatus(\'' + b.id + '\',\'cancelled\')">Cancelar</button>'
-        : b.status === 'confirmed' ? '<button class="action-btn btn-cancel" onclick="updateBookingStatus(\'' + b.id + '\',\'cancelled\')">Cancelar</button>' : '-';
+        : b.status === 'confirmed' ? '<button class="action-btn btn-cancel" onclick="updateBookingStatus(\'' + b.id + '\',\'cancelled\')">Cancelar</button>' + payBtn : '-';
       return '<tr><td style="font-size:13px">' + date + '</td><td><strong>' + (b.rooms?.title||'-') + '</strong><br><span style="font-size:12px;color:var(--gray-400)">' + (b.rooms?.city||b.rooms?.zone||'') + ' - ' + b.rooms?.price + 'EUR/mes</span></td><td>' + (b.profiles?.full_name||'-') + '</td><td>' + b.duration_months + ' meses<br><span style="font-size:12px;color:var(--gray-400)">desde ' + b.start_date + '</span></td><td><span class="spill ' + cls + '">' + txt + '</span></td><td style="white-space:nowrap">' + actions + '</td></tr>';
     }).join('');
   } else { bBody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--gray-400)">Sin reservas</td></tr>'; }
@@ -1771,6 +1798,81 @@ async function sendContactForm(e) {
     btn.textContent = 'Enviar mensaje'; btn.disabled = false;
     console.error('Contact form error:', err);
   }
+}
+
+// ── MODO DEMO ────────────────────────────────────────────────────────────
+let isDemoMode = false;
+
+async function enterDemoMode() {
+  const btn = event?.target;
+  if (btn) { btn.textContent = 'Cargando demo...'; btn.disabled = true; }
+
+  try {
+    // Login automático con credenciales demo
+    const { data, error } = await sb.auth.signInWithPassword({
+      email: 'demo@beromie.es',
+      password: 'Demo2025!'
+    });
+    if (error) { toast('Error al cargar el demo: ' + error.message); if(btn){btn.textContent='▶ Demo propietario';btn.disabled=false;} return; }
+
+    currentUser = data.user;
+    isDemoMode = true;
+    await loadProfile();
+    updateUIForAuth();
+    go('owner');
+    await loadOwnerDashboard();
+    showDemoBanner();
+    toast('Bienvenido al panel de demostración de propietario');
+  } catch(err) {
+    toast('Error al cargar el demo');
+    if(btn){btn.textContent='▶ Demo propietario';btn.disabled=false;}
+  }
+}
+
+function showDemoBanner() {
+  if (document.getElementById('demoBanner')) return;
+  const banner = document.createElement('div');
+  banner.id = 'demoBanner';
+  banner.className = 'demo-banner';
+  banner.innerHTML = `
+    <div class="demo-banner-txt">
+      <span class="demo-pill">DEMO</span>
+      <div>
+        <strong>Panel de demostración</strong> — Estás viendo el panel de un propietario real con 4 habitaciones, reservas, pagos e incidencias de ejemplo.
+      </div>
+    </div>
+    <div class="demo-banner-actions">
+      <button class="demo-cta-btn" onclick="closeModal();openModal();setModalTab('register')">Crear mi cuenta gratis</button>
+      <button class="demo-exit-btn" onclick="exitDemoMode()">Salir del demo</button>
+    </div>
+  `;
+  document.body.appendChild(banner);
+  // Añadir padding al body para que el banner no tape contenido
+  document.body.style.paddingBottom = '52px';
+}
+
+async function exitDemoMode() {
+  isDemoMode = false;
+  await sb.auth.signOut();
+  currentUser = null; currentProfile = null;
+  const banner = document.getElementById('demoBanner');
+  if (banner) { banner.remove(); document.body.style.paddingBottom = ''; }
+  go('landing');
+  updateUIForGuest();
+  toast('Has salido del modo demo');
+}
+
+// ── CONFIRMACIÓN MANUAL DE PAGO EN ADMIN ─────────────────────────────────
+async function confirmPaymentManual(bookingId, btn) {
+  if (btn) { btn.textContent = 'Confirmando...'; btn.disabled = true; }
+  const { error } = await sb.from('bookings').update({
+    status: 'confirmed',
+    fee_paid: true,
+    subscription_status: 'manual'
+  }).eq('id', bookingId);
+  if (error) { toast('Error: ' + error.message); if(btn){btn.textContent='Marcar pagado';btn.disabled=false;} return; }
+  toast('Reserva confirmada y pago registrado manualmente');
+  loadAdminDashboard();
 }
 
 let toastTimer;
