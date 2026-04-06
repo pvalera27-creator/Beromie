@@ -997,6 +997,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Supabase detecta automáticamente tokens en el hash (#access_token=...)
     // que llegan tras confirmar el email. onAuthStateChange los procesa.
     sb.auth.onAuthStateChange(async (evt, session) => {
+      // En modo demo no interferir con el flujo manual
+      if (isDemoMode) return;
       currentUser = session?.user || null;
       if (currentUser) {
         await loadProfile();
@@ -1804,53 +1806,64 @@ async function sendContactForm(e) {
 let isDemoMode = false;
 
 async function enterDemoMode(btnEl) {
-  // Deshabilitar todos los botones demo mientras carga
+  // Bloquear botones
   document.querySelectorAll('.btn-demo, .btn-demo-hero').forEach(b => {
-    b._origText = b.textContent;
-    b.textContent = 'Cargando...';
-    b.disabled = true;
+    b._origText = b.textContent; b.textContent = 'Cargando...'; b.disabled = true;
   });
 
-  const resetBtns = () => {
-    document.querySelectorAll('.btn-demo, .btn-demo-hero').forEach(b => {
-      b.textContent = b._origText || '▶ Demo propietario';
-      b.disabled = false;
-    });
-  };
-
   try {
+    // 1. Login con cuenta demo
     const { data, error } = await sb.auth.signInWithPassword({
-      email: 'demo@beromie.es',
-      password: 'Demo2025!'
+      email: 'demo@beromie.es', password: 'Demo2025!'
     });
+    if (error) throw new Error('Login fallido: ' + error.message);
 
-    if (error) {
-      console.error('Demo login error:', error);
-      toast('Error al cargar el demo: ' + error.message);
-      resetBtns();
-      return;
-    }
-
+    // 2. Setear usuario y modo demo ANTES de cualquier otra cosa
     currentUser = data.user;
     isDemoMode = true;
 
-    // Cargar perfil antes de actualizar UI
-    await loadProfile();
-    updateUIForAuth();
+    // 3. Obtener perfil directamente (sin tocar DOM de perfil)
+    const { data: profile } = await sb.from('profiles')
+      .select('*').eq('id', currentUser.id).single();
+    currentProfile = profile;
 
-    // Ir al panel de propietario
-    go('owner');
+    // 4. Actualizar UI básica manualmente (sin llamar updateUIForAuth que puede fallar)
+    const avatar = document.getElementById('userAvatar');
+    if (avatar) { avatar.textContent = 'DP'; avatar.style.display = 'flex'; }
+    const btnLogin = document.getElementById('btnLogin');
+    if (btnLogin) btnLogin.style.display = 'none';
+    const adminBtn = document.getElementById('nb-admin');
+    if (adminBtn) adminBtn.style.display = 'none';
+    const menuDash = document.getElementById('menuDashboard');
+    if (menuDash) { menuDash.textContent = 'Panel propietario'; menuDash.onclick = () => { go('owner'); }; }
+
+    // 5. Navegar al panel de propietario
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    const ownerScreen = document.getElementById('screen-owner');
+    if (ownerScreen) ownerScreen.classList.add('active');
+
+    // 6. Cargar datos del propietario
     await loadOwnerDashboard();
 
-    // Mostrar banner demo
+    // 7. Banner demo
     showDemoBanner();
-    resetBtns();
+
+    // 8. Restaurar botones (ahora ocultos pero por si acaso)
+    document.querySelectorAll('.btn-demo, .btn-demo-hero').forEach(b => {
+      b.textContent = b._origText || '▶ Demo propietario'; b.disabled = false;
+    });
+
     toast('Bienvenido al panel de demostración de Beromie');
 
   } catch(err) {
-    console.error('enterDemoMode error:', err);
-    toast('Error inesperado al cargar el demo');
-    resetBtns();
+    console.error('[demo] Error:', err);
+    toast('No se pudo cargar el demo. Inténtalo de nuevo.');
+    document.querySelectorAll('.btn-demo, .btn-demo-hero').forEach(b => {
+      b.textContent = b._origText || '▶ Demo propietario'; b.disabled = false;
+    });
+    // Cerrar sesión demo si se abrió
+    try { await sb.auth.signOut(); } catch(e) {}
+    isDemoMode = false; currentUser = null; currentProfile = null;
   }
 }
 
