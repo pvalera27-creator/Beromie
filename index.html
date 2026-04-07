@@ -1309,6 +1309,21 @@ document.addEventListener('click', (e) => {
 
 async function loadProfile() {
   if (!currentUser) return;
+  
+  // Bloquear usuarios de app.beromie.es (SaaS) — son de otra plataforma
+  const appSource = currentUser.user_metadata?.app_source;
+  if (appSource === 'saas') {
+    await sb.auth.signOut();
+    currentUser = null; currentProfile = null;
+    updateUIForGuest();
+    const banner = document.createElement('div');
+    banner.style.cssText = 'position:fixed;top:70px;left:50%;transform:translateX(-50%);z-index:999;background:#0C0C0B;color:#fff;padding:16px 24px;border-radius:14px;box-shadow:0 8px 40px rgba(0,0,0,.18);max-width:440px;width:calc(100% - 40px);font-size:14px;line-height:1.6';
+    banner.innerHTML = '<strong style="display:block;margin-bottom:6px">Cuenta no disponible aquí</strong>Tu cuenta pertenece a <strong>Beromie PRO</strong> para gestores inmobiliarios. Accede en <a href="https://app.beromie.es" style="color:#F0135E">app.beromie.es</a><button onclick="this.parentElement.remove()" style="float:right;background:none;border:none;color:rgba(255,255,255,.5);cursor:pointer;font-size:18px;line-height:1;margin-top:-2px">×</button>';
+    document.body.appendChild(banner);
+    setTimeout(() => banner.remove(), 8000);
+    return;
+  }
+  
   const { data } = await sb.from('profiles').select('*').eq('id', currentUser.id).single();
   currentProfile = data;
   if (data) {
@@ -1316,6 +1331,19 @@ async function loadProfile() {
     document.getElementById('profilePhone').value = data.phone || '';
     document.getElementById('profileDni').value = data.dni || '';
     document.getElementById('profileRole').value = data.role || 'tenant';
+  }
+  
+  // Si no hay perfil en beromie.es → crear uno automáticamente como tenant
+  if (!data && currentUser) {
+    const name = currentUser.user_metadata?.full_name || currentUser.email?.split('@')[0] || 'Usuario';
+    await sb.from('profiles').insert({
+      id: currentUser.id,
+      full_name: name,
+      role: 'tenant',
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    });
+    currentProfile = { id: currentUser.id, full_name: name, role: 'tenant' };
   }
 }
 
